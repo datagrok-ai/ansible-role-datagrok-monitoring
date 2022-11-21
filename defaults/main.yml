@@ -1,0 +1,56 @@
+---
+#defaults file for monitoring_server
+#setting host, wich will collect metrics, sends alertings, get visualisation of monitoring's targets condition, etc. 
+monitoring_host_ip: ' '
+monitoring_server_inventory_group: "monitoring_manager"
+monitoring_targets_inventory_group: "monitoring_node"
+#dir for store configuration files
+config_dir: "/etc/monitoring_env/files"
+#set enpoints for monitor and alert services health checks
+cvm_host: ""
+datagrok_host: ""
+blackbox_endpoints:
+  # gcompute
+  - "{{ cvm_host }}/grok_compute/info"
+  #JKG helper
+  - "{{ cvm_host }}/jupyter/helper/info"
+  #notebook helper                        
+  - "{{ cvm_host }}/notebook/helper/info"
+  #jupiter notebook              
+  - "{{ cvm_host }}/notebook/api"
+  #JKG                      
+  - "{{ cvm_host }}/jupyter/api/swagger.yaml"
+  #H20 helper          
+  - "{{ cvm_host }}:5005/helper/info"
+  #H20"                       
+  - "{{ cvm_host }}:54321/3/About"
+  - "{{ datagrok_host }}/api/admin/health"
+  #jenkins login
+  - "{{ datagrok_host }}:44555/login"
+
+
+deploy_profile: 
+  - all
+ # - grafana
+ # - alertmanager
+ # - blackbox
+#monitoring's nodexporter targets:  it can be IP:port, or DNS-name:port case. 
+prometheus_static_targets:
+  - ' '
+
+cadvisor_port: "8181"
+prometheus_port: "9090"
+grafana_port: "3000"
+alertmanager_port: "9093"
+blackbox_port: "9115"
+#slack notification configuration vars: slack aplication api url  & access token
+slack_webhook_url: " "
+slack_token: " "
+#E-mail notification configuration vars
+smtp_port: 25
+smtp_login: ""
+smtp_pwd: ""
+note_receiver: 
+  - ' '
+sending_host: " "
+

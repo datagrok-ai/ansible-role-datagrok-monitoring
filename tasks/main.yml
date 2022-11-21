@@ -1,0 +1,13 @@
+---
+  - name: include targets tasks
+    ansible.builtin.include_tasks: 
+      file: node.yml
+    when: 
+      - "inventory_hostname in groups ['{{ monitoring_targets_inventory_group }}']"
+      
+  - name: include server tasks
+    ansible.builtin.include_tasks: 
+      file: server.yml
+    when: 
+      - "inventory_hostname in groups ['{{ monitoring_server_inventory_group }}']"
+

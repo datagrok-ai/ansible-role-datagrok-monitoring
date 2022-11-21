@@ -1,0 +1,71 @@
+---
+version: "3.7"
+
+services:
+  prometheus:
+    image: "prom/prometheus"
+    hostname: "{{ monitoring_host_ip }}"
+    restart: always
+    ports:
+      - {{ prometheus_port }}:9090
+    volumes:
+      - {{ config_dir }}/prometheus.yml:/etc/prometheus/prometheus.yml
+      - {{ config_dir }}/alert_rules.yml:/etc/prometheus/alert_rules.yml
+      - prometheus_data:/prometheus/
+    command:
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=200h'
+
+  grafana:
+    image: "grafana/grafana-oss"
+    restart: always
+    ports:
+      - {{ grafana_port }}:3000 
+    volumes:
+      - grafana_data:/var/lib/grafana/
+    profiles:
+      - all
+{% for profile in deploy_profile %}
+{% if profile == 'grafana'%}
+      - grafana
+{% endif %}
+{% endfor %}
+    
+
+  alertmanager:
+    image: "quay.io/prometheus/alertmanager"
+    ports:
+      - {{ alertmanager_port }}:9093
+    volumes:
+      - {{ config_dir }}/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - alertmanager_data:/alertmanager/data/
+    restart: always
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--web.external-url=http://{{ monitoring_host_ip }}:{{ alertmanager_port }}'
+    profiles:
+      - all
+{% for profile in deploy_profile %}
+{% if profile == 'alertmanager' %}
+      - alertmanager
+{% endif %}
+{% endfor %}
+
+  blackbox:
+    image: "prom/blackbox-exporter:master"
+    ports:
+      - {{ blackbox_port }}:9115
+    volumes:
+      - {{ config_dir }}/blackbox.yml:/etc/blackbox_exporter/config.yml
+    restart: always
+    profiles:
+      - all
+{% for profile in deploy_profile %}
+{% if profile == 'blackbox'%}
+      - blackbox
+{% endif %}
+{% endfor %}
+volumes:
+  prometheus_data:
+  grafana_data:
+  alertmanager_data:

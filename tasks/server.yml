@@ -1,0 +1,36 @@
+---
+# tasks file for monitoring_server
+# install prometheus + grafana + alertmanager via docker-compose with alerting     
+- name: make directory  
+  file: 
+    path: "{{ config_dir }}"
+    state: directory
+    mode: '0755' 
+     
+# generating configs for prometheus + grafana + alertmanager + whatever
+- name: generating configs
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "0644" 
+  with_items:
+     -  { src: "prometheus.j2" , dest: "{{ config_dir }}/prometheus.yml" }
+     -  { src: "alertmanager.j2" , dest: "{{ config_dir }}/alertmanager.yml" }
+     -  { src: "blackbox.j2" , dest: "{{ config_dir }}/blackbox.yml" }
+     -  { src: "alert_rules.j2" , dest: "{{ config_dir }}/alert_rules.yml" }
+     -  { src: "docker-compose.j2" , dest: "{{ config_dir }}/docker-compose.yml" }
+  notify: 
+     - reload_prometheus
+     - update_compose
+  
+- name: make docker-compose.yml simlink to user home directory
+  file:
+    src: "{{ config_dir }}/docker-compose.yml"
+    dest: "/home/{{ ansible_user }}/docker-compose.yml"
+    state: link  
+- name: run deploy
+  community.docker.docker_compose:
+    project_name: "monitoring" 
+    project_src: "{{ config_dir }}/"
+    profiles: "{{ deploy_profile }}"
+  notify: reload_prometheus

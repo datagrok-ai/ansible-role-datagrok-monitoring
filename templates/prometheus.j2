@@ -1,0 +1,61 @@
+# my global config
+global:
+  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['{{monitoring_host_ip}}:{{ alertmanager_port }}']
+          
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+    - /etc/prometheus/alert_rules.yml
+  # - "second_rules.yml"
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:{{ prometheus_port }}']
+
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: "hardware_metrics"
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+    static_configs:
+       - targets: [{% for host in prometheus_static_targets %}'{{ host }}:9100'{% if loop.last %}{% else %}, {% endif %}{% endfor %}]
+
+  - job_name: "container_metrics"
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+    static_configs:
+       - targets: [{% for host in prometheus_static_targets %}'{{ host }}:{{cadvisor_port}}'{% if loop.last %}{% else %}, {% endif %}{% endfor %}]
+ 
+  - job_name: blackbox # To get metrics about the exporter itself
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["{{monitoring_host_ip}}:{{ blackbox_port }}"]
+  - job_name: blackbox-http # To get metrics about the exporter’s targets
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+    - targets:
+{% for server in blackbox_endpoints %}
+      - {{ server }} 
+{% endfor %}
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: {{monitoring_host_ip}}:9115
