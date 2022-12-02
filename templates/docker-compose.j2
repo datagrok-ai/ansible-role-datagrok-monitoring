@@ -3,68 +3,53 @@ version: "3.7"
 
 services:
   prometheus:
-    image: "prom/prometheus"
-    hostname: "{{ monitoring_host_ip }}"
+    image: "{{ prometheus_image }}"
+    hostname: {{ ansible_host }}
     restart: always
     ports:
-      - {{ prometheus_port }}:9090
+      - {{ monitoring_prometheus_port }}:9090
     volumes:
       - {{ config_dir }}/prometheus.yml:/etc/prometheus/prometheus.yml
       - {{ config_dir }}/alert_rules.yml:/etc/prometheus/alert_rules.yml
       - prometheus_data:/prometheus/
     command:
       - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=200h'
+      - '--storage.tsdb.retention.time={{ keep_prometheus_logs }}'
 
+{% if monitoring_grafana_enabled %}
   grafana:
-    image: "grafana/grafana-oss"
+    image: "{{ grafana_image }}"
     restart: always
     ports:
-      - {{ grafana_port }}:3000 
+      - {{ monitoring_grafana_port }}:3000 
     volumes:
       - grafana_data:/var/lib/grafana/
-    profiles:
-      - all
-{% for profile in deploy_profile %}
-{% if profile == 'grafana'%}
-      - grafana
 {% endif %}
-{% endfor %}
-    
 
+{% if monitoring_alertmanager_enabled %}
   alertmanager:
-    image: "quay.io/prometheus/alertmanager"
+    image: "{{ alertmanager_image }}"
     ports:
-      - {{ alertmanager_port }}:9093
+      - {{ monitoring_alertmanager_port }}:9093
     volumes:
       - {{ config_dir }}/alertmanager.yml:/etc/alertmanager/alertmanager.yml
       - alertmanager_data:/alertmanager/data/
     restart: always
     command:
       - '--config.file=/etc/alertmanager/alertmanager.yml'
-      - '--web.external-url=http://{{ monitoring_host_ip }}:{{ alertmanager_port }}'
-    profiles:
-      - all
-{% for profile in deploy_profile %}
-{% if profile == 'alertmanager' %}
-      - alertmanager
+      - '--web.external-url=http://{{ ansible_host }}:{{ monitoring_alertmanager_port }}'
 {% endif %}
-{% endfor %}
 
+{% if monitoring_blackbox_enabled %}
   blackbox:
-    image: "prom/blackbox-exporter:master"
+    image: "{{ blackbox_image }}"
     ports:
-      - {{ blackbox_port }}:9115
+      - {{ monitoring_blackbox_port }}:9115
     volumes:
       - {{ config_dir }}/blackbox.yml:/etc/blackbox_exporter/config.yml
     restart: always
-    profiles:
-      - all
-{% for profile in deploy_profile %}
-{% if profile == 'blackbox'%}
-      - blackbox
 {% endif %}
-{% endfor %}
+
 volumes:
   prometheus_data:
   grafana_data:

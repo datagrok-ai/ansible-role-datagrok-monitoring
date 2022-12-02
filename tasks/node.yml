@@ -1,33 +1,14 @@
 ---
-# tasks file for install_monitoring_agents
-  - name: install node_exporter 
-    apt: 
-      name: prometheus-node-exporter
-      update_cache: no 
-      state: present
-  - name: Install required system packages
-    apt:
-      pkg:
-        - software-properties-common
-        - python3-pip
-        - virtualenv
-        - python3-setuptools
-      state: latest
-      update_cache: no      
-  - name: Install Docker Module for Python
-    pip:
-      name: 
-        - docker
-        - docker-compose
   - name: Run Cadvisor via docker
     docker_container:
       name: cadvisor 
-      image: "gcr.io/cadvisor/cadvisor:latest"
+      image: "{{ cadvisor_image }}"
       volumes:
         - "/:/rootfs:ro"
         - "/var/run:/var/run:rw"
         - "/sys:/sys:ro"
         - "/var/lib/docker/:/var/lib/docker:ro"  
       ports: 
-        - "{{ cadvisor_port }}:8080"
-      restart_policy: always  
+        - "{{ monitoring_cadvisor_port }}:8080"
+      restart_policy: always
+    when: monitoring_cadvisor_enabled | bool

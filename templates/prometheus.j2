@@ -3,13 +3,13 @@ global:
   scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
   evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
   # scrape_timeout is set to the global default (10s).
-
+{% if monitoring_alertmanager_enabled %}
 # Alertmanager configuration
 alerting:
   alertmanagers:
     - static_configs:
-        - targets: ['{{monitoring_host_ip}}:{{ alertmanager_port }}']
-          
+        - targets: [{% if monitoring_server_inventory_group in groups %}{% for host in groups[monitoring_server_inventory_group] %}'{{ hostvars[host]['monitoring_advertise_address'] | default(hostvars[host]['ansible_host']) }}:{{ monitoring_alertmanager_port }}'{% if loop.last %}{% else %}, {% endif %}{% endfor %}{% endif %}]
+{% endif %}
 
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
 rule_files:
@@ -22,7 +22,7 @@ scrape_configs:
 
   - job_name: 'prometheus'
     static_configs:
-      - targets: ['localhost:{{ prometheus_port }}']
+      - targets: ['localhost:{{ monitoring_prometheus_port }}']
 
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
   - job_name: "hardware_metrics"
@@ -30,19 +30,20 @@ scrape_configs:
     # metrics_path defaults to '/metrics'
     # scheme defaults to 'http'.
     static_configs:
-       - targets: [{% for host in prometheus_static_targets %}'{{ host }}:9100'{% if loop.last %}{% else %}, {% endif %}{% endfor %}]
-
+       - targets: [{% if monitoring_server_inventory_group in groups %}{% for host in groups[monitoring_server_inventory_group] %}'{{ hostvars[host]['monitoring_advertise_address'] | default(hostvars[host]['ansible_host']) }}:{{ monitoring_node_exporter_port }}'{% if loop.last %}{% else %}, {% endif %}{% endfor %}{% endif %}{% if monitoring_targets_inventory_group in groups %}{% for host in groups[monitoring_targets_inventory_group] %}'{{ hostvars[host]['monitoring_advertise_address'] | default(hostvars[host]['ansible_host']) }}:{{ monitoring_node_exporter_port }}'{% if loop.last %}{% else %}, {% endif %}{% endfor %}{% endif %}]
+{% if monitoring_cadvisor_enabled %}
   - job_name: "container_metrics"
 
     # metrics_path defaults to '/metrics'
     # scheme defaults to 'http'.
     static_configs:
-       - targets: [{% for host in prometheus_static_targets %}'{{ host }}:{{cadvisor_port}}'{% if loop.last %}{% else %}, {% endif %}{% endfor %}]
- 
+       - targets: [{% if monitoring_server_inventory_group in groups %}{% for host in groups[monitoring_server_inventory_group] %}'{{ hostvars[host]['monitoring_advertise_address'] | default(hostvars[host]['ansible_host']) }}:{{ monitoring_cadvisor_port }}'{% if loop.last %}{% else %}, {% endif %}{% endfor %}{% endif %}{% if monitoring_targets_inventory_group in groups %}{% for host in groups[monitoring_targets_inventory_group] %}'{{ hostvars[host]['monitoring_advertise_address'] | default(hostvars[host]['ansible_host']) }}:{{ monitoring_cadvisor_port }}'{% if loop.last %}{% else %}, {% endif %}{% endfor %}{% endif %}]
+{% endif %}
+{% if monitoring_blackbox_enabled %} 
   - job_name: blackbox # To get metrics about the exporter itself
     metrics_path: /metrics
     static_configs:
-      - targets: ["{{monitoring_host_ip}}:{{ blackbox_port }}"]
+      - targets: [{% if monitoring_server_inventory_group in groups %}{% for host in groups[monitoring_server_inventory_group] %}'{{ hostvars[host]['monitoring_advertise_address'] | default(hostvars[host]['ansible_host']) }}:{{ monitoring_blackbox_port }}'{% if loop.last %}{% else %}, {% endif %}{% endfor %}{% endif %}]
   - job_name: blackbox-http # To get metrics about the exporter’s targets
     metrics_path: /probe
     params:
@@ -58,4 +59,5 @@ scrape_configs:
       - source_labels: [__param_target]
         target_label: instance
       - target_label: __address__
-        replacement: {{monitoring_host_ip}}:9115
+        replacement: {{ ansible_default_ipv4.address }}:{{ monitoring_blackbox_port }}
+{% endif %}

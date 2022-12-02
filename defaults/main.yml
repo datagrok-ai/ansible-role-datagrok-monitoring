@@ -1,12 +1,14 @@
 ---
-#defaults file for monitoring_server
-#setting host, wich will collect metrics, sends alertings, get visualisation of monitoring's targets condition, etc. 
-monitoring_host_ip: ' '
+#================================= defaults file for monitoring_server ================================
+#setting inventory groups for host, wich will collect metrics, sends alertings, get visualisation of monitoring's targets condition, etc. 
 monitoring_server_inventory_group: "monitoring_manager"
 monitoring_targets_inventory_group: "monitoring_node"
-#dir for store configuration files
-config_dir: "/etc/monitoring_env/files"
-#set enpoints for monitor and alert services health checks
+
+#dir for store configuration files on monitoring server
+config_dir: "/etc/monitoring"
+keep_prometheus_logs: "200h"
+
+#========= set enpoints for monitor and alert services health checks ========
 cvm_host: ""
 datagrok_host: ""
 blackbox_endpoints:
@@ -25,32 +27,43 @@ blackbox_endpoints:
   #H20"                       
   - "{{ cvm_host }}:54321/3/About"
   - "{{ datagrok_host }}/api/admin/health"
-  #jenkins login
-  - "{{ datagrok_host }}:44555/login"
 
+#========= enabled deploy profiles ==================
+monitoring_grafana_enabled: true
+monitoring_alertmanager_enabled: true
+monitoring_blackbox_enabled: true
+monitoring_cadvisor_enabled: true
 
-deploy_profile: 
-  - all
- # - grafana
- # - alertmanager
- # - blackbox
-#monitoring's nodexporter targets:  it can be IP:port, or DNS-name:port case. 
-prometheus_static_targets:
-  - ' '
+#========= monitoring components docker images ======
+prometheus_image: "prom/prometheus:v2.40.4"
+grafana_image: "grafana/grafana-oss:9.2.6"
+alertmanager_image: "quay.io/prometheus/alertmanager:v0.24.0"
+blackbox_image: "prom/blackbox-exporter:master"
+cadvisor_image: "gcr.io/cadvisor/cadvisor:v0.38.6"
 
-cadvisor_port: "8181"
-prometheus_port: "9090"
-grafana_port: "3000"
-alertmanager_port: "9093"
-blackbox_port: "9115"
+#========== monitoring components ports =============
+monitoring_node_exporter_port: "9100"
+monitoring_cadvisor_port: "8181"
+monitoring_prometheus_port: "9090"
+monitoring_grafana_port: "3000"
+monitoring_alertmanager_port: "9093"
+monitoring_blackbox_port: "9115"
+
+#========== alertmanager params ======================
+slack_alerts: true
+email_alerts: true 
+group_message_interval: "5m"
+repeat_message_interval: "30m"
 #slack notification configuration vars: slack aplication api url  & access token
+monitoring_slack_channel: "monitoring"
 slack_webhook_url: " "
-slack_token: " "
 #E-mail notification configuration vars
 smtp_port: 25
 smtp_login: ""
 smtp_pwd: ""
 note_receiver: 
-  - ' '
+  - 'monitoring@datagrok.ai'
 sending_host: " "
+#receive resolved issues messages
+send_resolved: false
 
