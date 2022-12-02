@@ -50,7 +50,7 @@ Role Variables
 |**monitoring_blackbox_enabled**| true | Enable option to install<br> [ BlackBox Exporter ]( https://github.com/prometheus/blackbox_exporter ). Used for monitoring platform healthchecks |
 |**monitoring_cadvisor_enabled**|true| Enable option to install <br>[ Cadvisor exporter ]( https://github.com/google/cadvisor ). Used for monitoring docker containers |
 |**prometheus_image**| prom/prometheus:v2.40.4 | Used [ Prometheus ]( https://prometheus.io/docs/introduction/overview/ ) docker image |
-|**grafana_image**| grafana/grafana-oss:9.2.6 | Used [ Grafana ]( https://grafana.com/grafana/ ) docker mage |
+|**grafana_image**| grafana/grafana-oss:9.2.6 | Used [ Grafana ]( https://grafana.com/grafana/ ) docker image |
 |**alertmanager_image**| quay.io/prometheus/alertmanager:v0.24.0 | Used [ Alert Manager ]( https://prometheus.io/docs/alerting/latest/alertmanager/ ) <br>docker image |
 |**blackbox_image**| prom/blackbox-exporter:master | Used [ BlackBox Exporter ]( https://github.com/prometheus/blackbox_exporter ) <br>docker image |
 |**cadvisor_image**| gcr.io/cadvisor/cadvisor:v0.38.6 | Used [ Cadvisor exporter ]( https://github.com/google/cadvisor ) <br>docker image |
