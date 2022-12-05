@@ -8,25 +8,28 @@ monitoring_targets_inventory_group: "monitoring_node"
 config_dir: "/etc/monitoring"
 keep_prometheus_logs: "200h"
 
+monitoring_domain: 127.0.0.1
+monitoring_alertmanager_domain: "http://{{ monitoring_domain }}:{{ monitoring_alertmanager_port }}"
+
 #========= set enpoints for monitor and alert services health checks ========
-cvm_host: ""
-datagrok_host: ""
+cvm_endpoint: "http://127.0.0.1:8080"
+datagrok_endpoint: "http://127.0.0.1:8090"
 blackbox_endpoints:
   # gcompute
-  - "{{ cvm_host }}/grok_compute/info"
+  - "{{ cvm_endpoint }}/grok_compute/info"
   #JKG helper
-  - "{{ cvm_host }}/jupyter/helper/info"
+  - "{{ cvm_endpoint }}/jupyter/helper/info"
   #notebook helper                        
-  - "{{ cvm_host }}/notebook/helper/info"
+  - "{{ cvm_endpoint }}/notebook/helper/info"
   #jupiter notebook              
-  - "{{ cvm_host }}/notebook/api"
+  - "{{ cvm_endpoint }}/notebook/api"
   #JKG                      
-  - "{{ cvm_host }}/jupyter/api/swagger.yaml"
+  - "{{ cvm_endpoint }}/jupyter/api/swagger.yaml"
   #H20 helper          
-  - "{{ cvm_host }}:5005/helper/info"
+  - "{{ cvm_endpoint }}:5005/helper/info"
   #H20"                       
-  - "{{ cvm_host }}:54321/3/About"
-  - "{{ datagrok_host }}/api/admin/health"
+  - "{{ cvm_endpoint }}:54321/3/About"
+  - "{{ datagrok_endpoint }}/api/admin/health"
 
 #========= enabled deploy profiles ==================
 monitoring_grafana_enabled: true
@@ -50,20 +53,21 @@ monitoring_alertmanager_port: "9093"
 monitoring_blackbox_port: "9115"
 
 #========== alertmanager params ======================
-slack_alerts: true
-email_alerts: true 
-group_message_interval: "5m"
-repeat_message_interval: "30m"
-#slack notification configuration vars: slack aplication api url  & access token
-monitoring_slack_channel: "monitoring"
-slack_webhook_url: " "
-#E-mail notification configuration vars
-smtp_port: 25
-smtp_login: ""
-smtp_pwd: ""
-note_receiver: 
-  - 'monitoring@datagrok.ai'
-sending_host: " "
+monitoring_alerts_repeat_message_interval: "30m"
+monitoring_alerts_group_message_interval: "5m"
 #receive resolved issues messages
-send_resolved: false
+monitoring_alerts_send_resolved: false
 
+monitoring_slack_alerts: false
+monitoring_slack_channel: "monitoring"
+#slack notification configuration vars: slack aplication api url  & access token
+monitoring_slack_webhook_url: " "
+
+#E-mail notification configuration vars
+monitoring_email_alerts: true
+monitoring_smtp_port: 25
+monitoring_smtp_login: ""
+monitoring_smtp_pwd: ""
+monitoring_note_receiver:
+  - 'monitoring@datagrok.ai'
+monitoring_smtp_host: "127.0.0.1"

@@ -1,14 +1,14 @@
 ---
-  - name: Run Cadvisor via docker
-    docker_container:
-      name: cadvisor 
-      image: "{{ cadvisor_image }}"
-      volumes:
-        - "/:/rootfs:ro"
-        - "/var/run:/var/run:rw"
-        - "/sys:/sys:ro"
-        - "/var/lib/docker/:/var/lib/docker:ro"  
-      ports: 
-        - "{{ monitoring_cadvisor_port }}:8080"
-      restart_policy: always
-    when: monitoring_cadvisor_enabled | bool
+- name: Run Cadvisor via docker
+  docker_container:
+    name: cadvisor
+    image: "{{ cadvisor_image }}"
+    volumes:
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run:rw"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+    ports:
+      - "{{ monitoring_cadvisor_port }}:8080"
+    restart_policy: always
+  when: monitoring_cadvisor_enabled | bool

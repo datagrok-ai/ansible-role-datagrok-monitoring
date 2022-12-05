@@ -4,7 +4,7 @@ version: "3.7"
 services:
   prometheus:
     image: "{{ prometheus_image }}"
-    hostname: {{ ansible_host }}
+    hostname: {{ monitoring_domain }}
     restart: always
     ports:
       - {{ monitoring_prometheus_port }}:9090
@@ -37,7 +37,7 @@ services:
     restart: always
     command:
       - '--config.file=/etc/alertmanager/alertmanager.yml'
-      - '--web.external-url=http://{{ ansible_host }}:{{ monitoring_alertmanager_port }}'
+      - '--web.external-url={{ monitoring_alertmanager_domain }}'
 {% endif %}
 
 {% if monitoring_blackbox_enabled %}

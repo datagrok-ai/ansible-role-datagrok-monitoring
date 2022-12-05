@@ -46,8 +46,6 @@
     mode: "0644" 
   with_items:
      -  { src: "docker-compose.j2" , dest: "{{ config_dir }}/docker-compose.yml" }
-  notify: 
-     - restart_docker_compose
 
 - name: run deploy
   community.docker.docker_compose:

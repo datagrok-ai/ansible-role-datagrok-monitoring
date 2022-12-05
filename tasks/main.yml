@@ -1,13 +1,12 @@
 ---
-  - name: include targets tasks
-    ansible.builtin.include_tasks: 
-      file: node.yml
-    when: 
-      - monitoring_targets_inventory_group in group_names
-      
-  - name: include server tasks
-    ansible.builtin.include_tasks: 
-      file: server.yml
-    when: 
-      - monitoring_server_inventory_group in group_names
+- name: include targets tasks
+  ansible.builtin.include_tasks:
+    file: node.yml
+  when:
+    - monitoring_targets_inventory_group in group_names
 
+- name: include server tasks
+  ansible.builtin.include_tasks:
+    file: server.yml
+  when:
+    - monitoring_server_inventory_group in group_names

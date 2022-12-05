@@ -26,9 +26,3 @@
     services: 
       - blackbox
     restarted: true
-
-- name: restart_docker_compose
-  community.docker.docker_compose:
-    project_name: "monitoring"
-    project_src: "{{ config_dir }}/"
-    build: false 
