@@ -15,7 +15,7 @@ route:
 
 receivers:
 - name: 'DevOps'
-{% if slack_alerts %}
+{% if monitoring_slack_alerts %}
   slack_configs:
   - channel: '#{{ monitoring_slack_channel }}'
     send_resolved: {{ monitoring_alerts_send_resolved }}

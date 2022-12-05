@@ -15,6 +15,7 @@ services:
     command:
       - '--storage.tsdb.path=/prometheus'
       - '--storage.tsdb.retention.time={{ keep_prometheus_logs }}'
+      - '--config.file=/etc/prometheus/prometheus.yml'
 
 {% if monitoring_grafana_enabled %}
   grafana:
