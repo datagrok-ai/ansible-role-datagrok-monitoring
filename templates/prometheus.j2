@@ -30,14 +30,14 @@ scrape_configs:
     # metrics_path defaults to '/metrics'
     # scheme defaults to 'http'.
     static_configs:
-       - targets: [{% if monitoring_server_inventory_group in groups %}{% for host in groups[monitoring_server_inventory_group] %}'{{ hostvars[host]['monitoring_advertise_address'] | default(hostvars[host]['ansible_host']) }}:{{ monitoring_node_exporter_port }}'{% if loop.last %}{% else %}, {% endif %}{% endfor %}{% endif %}{% if monitoring_targets_inventory_group in groups %}{% for host in groups[monitoring_targets_inventory_group] %}'{{ hostvars[host]['monitoring_advertise_address'] | default(hostvars[host]['ansible_host']) }}:{{ monitoring_node_exporter_port }}'{% if loop.last %}{% else %}, {% endif %}{% endfor %}{% endif %}]
+       - targets: [{% if monitoring_server_inventory_group in groups %}{% for host in groups[monitoring_server_inventory_group] %}'{{ hostvars[host]['monitoring_advertise_address'] | default(hostvars[host]['ansible_host']) }}:{{ monitoring_node_exporter_port }}', {% endfor %}{% endif %}{% if monitoring_targets_inventory_group in groups %}{% for host in groups[monitoring_targets_inventory_group] %}'{{ hostvars[host]['monitoring_advertise_address'] | default(hostvars[host]['ansible_host']) }}:{{ monitoring_node_exporter_port }}'{% if loop.last %}{% else %}, {% endif %}{% endfor %}{% endif %}]
 {% if monitoring_cadvisor_enabled %}
   - job_name: "container_metrics"
 
     # metrics_path defaults to '/metrics'
     # scheme defaults to 'http'.
     static_configs:
-       - targets: [{% if monitoring_server_inventory_group in groups %}{% for host in groups[monitoring_server_inventory_group] %}'{{ hostvars[host]['monitoring_advertise_address'] | default(hostvars[host]['ansible_host']) }}:{{ monitoring_cadvisor_port }}'{% if loop.last %}{% else %}, {% endif %}{% endfor %}{% endif %}{% if monitoring_targets_inventory_group in groups %}{% for host in groups[monitoring_targets_inventory_group] %}'{{ hostvars[host]['monitoring_advertise_address'] | default(hostvars[host]['ansible_host']) }}:{{ monitoring_cadvisor_port }}'{% if loop.last %}{% else %}, {% endif %}{% endfor %}{% endif %}]
+       - targets: [{% if monitoring_server_inventory_group in groups %}{% for host in groups[monitoring_server_inventory_group] %}'{{ hostvars[host]['monitoring_advertise_address'] | default(hostvars[host]['ansible_host']) }}:{{ monitoring_cadvisor_port }}', {% endfor %}{% endif %}{% if monitoring_targets_inventory_group in groups %}{% for host in groups[monitoring_targets_inventory_group] %}'{{ hostvars[host]['monitoring_advertise_address'] | default(hostvars[host]['ansible_host']) }}:{{ monitoring_cadvisor_port }}'{% if loop.last %}{% else %}, {% endif %}{% endfor %}{% endif %}]
 {% endif %}
 {% if monitoring_blackbox_enabled %} 
   - job_name: blackbox # To get metrics about the exporter itself
