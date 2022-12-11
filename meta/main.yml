@@ -53,6 +53,8 @@ dependencies:
       pip_install_packages:
         - name: docker
         - name: docker-compose
-  - role: cloudalchemy.node_exporter
+  - role: kevincoakley.prometheus_node_exporter
     vars:
-      node_exporter_web_listen_address: "0.0.0.0:{{ monitoring_node_exporter_port }}"
+      prometheus_node_exporter_config_flags:
+       'web.listen-address': '0.0.0.0:{{ monitoring_node_exporter_port }}'
+       'log.level': 'info'
