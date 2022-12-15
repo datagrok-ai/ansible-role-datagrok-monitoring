@@ -92,11 +92,9 @@ Example Playbook
 
 
  
-=======
   
 License
 -------
-
 Datagrok
 
 Author Information
