@@ -1,0 +1,28 @@
+---
+# handlers file for monitoring_server
+- name: restart_prometheus
+  community.docker.docker_compose:
+    project_name: "monitoring"
+    project_src: "{{ config_dir }}/"
+    build: false
+    services: 
+      - prometheus
+    restarted: true
+
+- name: restart_alertmanager
+  community.docker.docker_compose:
+    project_name: "monitoring"
+    project_src: "{{ config_dir }}/"
+    build: false
+    services: 
+      - alertmanager
+    restarted: true
+
+- name: restart_blackbox
+  community.docker.docker_compose:
+    project_name: "monitoring"
+    project_src: "{{ config_dir }}/"
+    build: false
+    services: 
+      - blackbox
+    restarted: true
