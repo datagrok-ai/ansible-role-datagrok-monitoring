@@ -3,7 +3,7 @@
 - name: restart_prometheus
   community.docker.docker_compose:
     project_name: "monitoring"
-    project_src: "{{ config_dir }}/"
+    project_src: "{{ monitoring_config_dir }}/"
     build: false
     services: 
       - prometheus
@@ -12,7 +12,7 @@
 - name: restart_alertmanager
   community.docker.docker_compose:
     project_name: "monitoring"
-    project_src: "{{ config_dir }}/"
+    project_src: "{{ monitoring_config_dir }}/"
     build: false
     services: 
       - alertmanager
@@ -21,7 +21,7 @@
 - name: restart_blackbox
   community.docker.docker_compose:
     project_name: "monitoring"
-    project_src: "{{ config_dir }}/"
+    project_src: "{{ monitoring_config_dir }}/"
     build: false
     services: 
       - blackbox

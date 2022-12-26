@@ -2,7 +2,7 @@
 - name: Run Cadvisor via docker
   docker_container:
     name: cadvisor
-    image: "{{ cadvisor_image }}"
+    image: "{{ monitoring_cadvisor_image }}"
     volumes:
       - "/:/rootfs:ro"
       - "/var/run:/var/run:rw"

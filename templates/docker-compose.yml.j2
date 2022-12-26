@@ -3,37 +3,37 @@ version: "3.7"
 
 services:
   prometheus:
-    image: "{{ prometheus_image }}"
-    hostname: {{ monitoring_domain }}
+    image: "{{ monitoring_prometheus_image }}"
+    hostname: "{{ monitoring_domain }}"
     restart: always
     ports:
       - {{ monitoring_prometheus_port }}:9090
     volumes:
-      - {{ config_dir }}/prometheus.yml:/etc/prometheus/prometheus.yml
-      - {{ config_dir }}/alert_rules.yml:/etc/prometheus/alert_rules.yml
+      - {{ monitoring_config_dir }}/prometheus.yml:/etc/prometheus/prometheus.yml
+      - {{ monitoring_config_dir }}/alert_rules.yml:/etc/prometheus/alert_rules.yml
       - prometheus_data:/prometheus/
     command:
       - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time={{ keep_prometheus_logs }}'
+      - '--storage.tsdb.retention.time={{ monitoring_keep_prometheus_logs }}'
       - '--config.file=/etc/prometheus/prometheus.yml'
 
-{% if monitoring_grafana_enabled %}
+{% if monitoring_grafana_enabled | default(true) %}
   grafana:
-    image: "{{ grafana_image }}"
+    image: "{{ monitoring_grafana_image }}"
     restart: always
     ports:
-      - {{ monitoring_grafana_port }}:3000 
+      - {{ monitoring_grafana_port }}:3000
     volumes:
       - grafana_data:/var/lib/grafana/
 {% endif %}
 
-{% if monitoring_alertmanager_enabled %}
+{% if monitoring_alertmanager_enabled | default(true) %}
   alertmanager:
-    image: "{{ alertmanager_image }}"
+    image: "{{ monitoring_alertmanager_image }}"
     ports:
       - {{ monitoring_alertmanager_port }}:9093
     volumes:
-      - {{ config_dir }}/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - {{ monitoring_config_dir }}/alertmanager.yml:/etc/alertmanager/alertmanager.yml
       - alertmanager_data:/alertmanager/data/
     restart: always
     command:
@@ -41,13 +41,13 @@ services:
       - '--web.external-url={{ monitoring_alertmanager_domain }}'
 {% endif %}
 
-{% if monitoring_blackbox_enabled %}
+{% if monitoring_blackbox_enabled | default(true) %}
   blackbox:
-    image: "{{ blackbox_image }}"
+    image: "{{ monitoring_blackbox_image }}"
     ports:
       - {{ monitoring_blackbox_port }}:9115
     volumes:
-      - {{ config_dir }}/blackbox.yml:/etc/blackbox_exporter/config.yml
+      - {{ monitoring_config_dir }}/blackbox.yml:/etc/blackbox_exporter/config.yml
     restart: always
 {% endif %}
 

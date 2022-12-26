@@ -1,10 +1,21 @@
+#jinja2:lstrip_blocks: True
+---
 global:
-{% if monitoring_slack_alerts %}
+{% if monitoring_slack_alerts | default(false) %}
   slack_api_url: "{{ monitoring_slack_webhook_url }}"
 {% endif %}
 
-{% if monitoring_email_alerts %}
-  smtp_require_tls: false
+{% if monitoring_email_alerts | default(true) %}
+  smtp_require_tls: {{ monitoring_smtp_require_tls }}
+  smtp_smarthost: "{{ monitoring_smtp_host }}:{{ monitoring_smtp_port }}"
+  smtp_from: "{{ monitoring_smtp_from }}"
+  {% if monitoring_smtp_login | default('') | length > 0 %}
+  smtp_auth_username: "{{ monitoring_smtp_login }}"
+  smtp_auth_identity: "{{ monitoring_smtp_login }}"
+  {% endif %}
+  {% if monitoring_smtp_pwd | default('') | length > 0 %}
+  smtp_auth_password: "{{ monitoring_smtp_pwd }}"
+  {% endif %}
 {% endif %}
 
 route:
@@ -15,12 +26,12 @@ route:
 
 receivers:
 - name: 'DevOps'
-{% if monitoring_slack_alerts %}
+{% if monitoring_slack_alerts | default(false) %}
   slack_configs:
   - channel: '#{{ monitoring_slack_channel }}'
     send_resolved: {{ monitoring_alerts_send_resolved }}
     icon_url: https://avatars3.githubusercontent.com/u/3380462
-{% raw %}
+    {% raw %}
     title: |-
         [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }} for {{ .CommonLabels.job }} on {{ .CommonLabels.instance }} 
         {{- if gt (len .CommonLabels) (len .GroupLabels) -}}
@@ -41,17 +52,12 @@ receivers:
           {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
           {{ end }}
         {{ end }}
-{% endraw %} 
+    {% endraw %}
 {% endif %}
-{% if monitoring_email_alerts %}
+{% if monitoring_email_alerts | default(true) %}
   email_configs:
-{% for receiver in monitoring_note_receiver %}
+  {% for receiver in monitoring_note_receiver %}
   - to: "{{ receiver }}"  
     send_resolved: {{ monitoring_alerts_send_resolved }}
-    from: "{{ monitoring_smtp_login }}"
-    smarthost: "{{ monitoring_smtp_host }}:{{ monitoring_smtp_port }}"
-    auth_username: "{{ monitoring_smtp_login }}"
-    auth_identity: "{{ monitoring_smtp_login }}"
-    auth_password: "{{ monitoring_smtp_pwd }}"
-{% endfor %}
+  {% endfor %}
 {% endif %}
