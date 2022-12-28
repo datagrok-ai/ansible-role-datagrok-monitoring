@@ -49,7 +49,7 @@ monitoring_cadvisor_image: "gcr.io/cadvisor/cadvisor:v0.38.6"
 
 #========== monitoring components ports =============
 monitoring_node_exporter_port: "9100"
-monitoring_cadvisor_port: "8181"
+monitoring_cadvisor_port: "8080"
 monitoring_prometheus_port: "9090"
 monitoring_grafana_port: "3000"
 monitoring_alertmanager_port: "9093"

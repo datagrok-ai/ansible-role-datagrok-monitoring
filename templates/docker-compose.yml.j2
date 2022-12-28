@@ -2,6 +2,7 @@
 version: "3.7"
 
 services:
+
   prometheus:
     image: "{{ monitoring_prometheus_image }}"
     hostname: "{{ monitoring_domain }}"
@@ -20,13 +21,14 @@ services:
       - '--storage.tsdb.path=/prometheus'
       - '--storage.tsdb.retention.time={{ monitoring_keep_prometheus_logs }}'
       - '--config.file=/etc/prometheus/prometheus.yml'
+      - "--web.listen-address=:{{ monitoring_prometheus_port }}"
 
 {% if monitoring_grafana_enabled | default(true) %}
   grafana:
     image: "{{ monitoring_grafana_image }}"
     restart: always
     ports:
-      - {{ monitoring_grafana_port }}:3000
+      - {{ monitoring_grafana_port }}:{{ monitoring_grafana_port }}
     volumes:
       - grafana_data:/var/lib/grafana/
     environment:
@@ -53,6 +55,7 @@ services:
     command:
       - '--config.file=/etc/alertmanager/alertmanager.yml'
       - '--web.external-url={{ monitoring_alertmanager_domain }}'
+      - "--web.listen-address=:{{ monitoring_alertmanager_port }}"
 {% endif %}
 
 {% if monitoring_blackbox_enabled | default(true) %}
@@ -67,6 +70,9 @@ services:
         aliases:
           - blackbox
     restart: always
+    command:
+      - '--config.file=/etc/blackbox_exporter/config.yml'
+      - "--web.listen-address=:{{ monitoring_blackbox_port }}"
 {% endif %}
 
 volumes:
