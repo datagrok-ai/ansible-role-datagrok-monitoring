@@ -4,6 +4,9 @@
 monitoring_server_inventory_group: "monitoring_manager"
 monitoring_targets_inventory_group: "monitoring_node"
 
+monitoring_docker_network_name: "monitoring"
+monitoring_docker_network_subnet: 172.20.0.0/16
+
 #dir for store configuration files on monitoring server
 monitoring_config_dir: "/etc/monitoring"
 monitoring_keep_prometheus_logs: "200h"

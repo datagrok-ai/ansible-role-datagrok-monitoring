@@ -1,4 +1,12 @@
 ---
+
+- name: Create a network
+  community.docker.docker_network:
+    name: "{{ monitoring_docker_network_name }}"
+    ipam_config:
+      - subnet: "{{ monitoring_docker_network_subnet | ansible.utils.ipsubnet }}"
+        gateway: "{{ monitoring_docker_network_subnet | ansible.utils.ipaddr('next_usable') }}"
+
 - name: Run Cadvisor via docker
   docker_container:
     name: cadvisor
@@ -10,5 +18,9 @@
       - "/var/lib/docker/:/var/lib/docker:ro"
     ports:
       - "{{ monitoring_cadvisor_port }}:8080"
+    networks:
+      - name: "{{ monitoring_docker_network_name }}"
+        aliases:
+          - cadvisor
     restart_policy: always
   when: monitoring_cadvisor_enabled | bool

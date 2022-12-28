@@ -23,7 +23,7 @@
   template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
-    mode: "0644" 
+    mode: "0644"
   with_items:
      -  { src: "alertmanager.yml.j2" , dest: "{{ monitoring_config_dir }}/alertmanager.yml" }
   notify: 
@@ -47,8 +47,18 @@
   with_items:
      -  { src: "docker-compose.yml.j2" , dest: "{{ monitoring_config_dir }}/docker-compose.yml" }
 
+- name: Create a network
+  community.docker.docker_network:
+    name: "{{ monitoring_docker_network_name }}"
+    ipam_config:
+      - subnet: "{{ monitoring_docker_network_subnet | ansible.utils.ipsubnet }}"
+        gateway: "{{ monitoring_docker_network_subnet | ansible.utils.ipaddr('next_usable') }}"
+  notify:
+    - restart_stand
+
+
 - name: run deploy
   community.docker.docker_compose:
     project_name: "monitoring" 
     project_src: "{{ monitoring_config_dir }}/"
-
+  tags: ['prometheus']
