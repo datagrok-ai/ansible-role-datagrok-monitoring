@@ -1,0 +1,85 @@
+---
+version: "3.7"
+
+services:
+
+  prometheus:
+    image: "{{ monitoring_prometheus_image }}"
+    hostname: "{{ monitoring_domain }}"
+    restart: always
+    ports:
+      - {{ monitoring_prometheus_port }}:9090
+    volumes:
+      - {{ monitoring_config_dir }}/prometheus.yml:/etc/prometheus/prometheus.yml
+      - {{ monitoring_config_dir }}/alert_rules.yml:/etc/prometheus/alert_rules.yml
+      - prometheus_data:/prometheus/
+    networks:
+      {{ monitoring_docker_network_name }}:
+        aliases:
+          - prometheus
+    command:
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time={{ monitoring_keep_prometheus_logs }}'
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - "--web.listen-address=:{{ monitoring_prometheus_port }}"
+
+{% if monitoring_grafana_enabled | default(true) %}
+  grafana:
+    image: "{{ monitoring_grafana_image }}"
+    restart: always
+    ports:
+      - {{ monitoring_grafana_port }}:{{ monitoring_grafana_port }}
+    volumes:
+      - grafana_data:/var/lib/grafana/
+    environment:
+      - GF_SERVER_HTTP_PORT={{ monitoring_grafana_port }}
+    networks:
+      {{ monitoring_docker_network_name }}:
+        aliases:
+          - grafana
+{% endif %}
+
+{% if monitoring_alertmanager_enabled | default(true) %}
+  alertmanager:
+    image: "{{ monitoring_alertmanager_image }}"
+    ports:
+      - {{ monitoring_alertmanager_port }}:9093
+    volumes:
+      - {{ monitoring_config_dir }}/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - alertmanager_data:/alertmanager/data/
+    networks:
+      {{ monitoring_docker_network_name }}:
+        aliases:
+          - alertmanager
+    restart: always
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--web.external-url={{ monitoring_alertmanager_domain }}'
+      - "--web.listen-address=:{{ monitoring_alertmanager_port }}"
+{% endif %}
+
+{% if monitoring_blackbox_enabled | default(true) %}
+  blackbox:
+    image: "{{ monitoring_blackbox_image }}"
+    ports:
+      - {{ monitoring_blackbox_port }}:9115
+    volumes:
+      - {{ monitoring_config_dir }}/blackbox.yml:/etc/blackbox_exporter/config.yml
+    networks:
+      {{ monitoring_docker_network_name }}:
+        aliases:
+          - blackbox
+    restart: always
+    command:
+      - '--config.file=/etc/blackbox_exporter/config.yml'
+      - "--web.listen-address=:{{ monitoring_blackbox_port }}"
+{% endif %}
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  alertmanager_data:
+
+networks:
+  {{ monitoring_docker_network_name }}:
+    external: true

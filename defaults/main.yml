@@ -4,32 +4,35 @@
 monitoring_server_inventory_group: "monitoring_manager"
 monitoring_targets_inventory_group: "monitoring_node"
 
+monitoring_docker_network_name: "monitoring"
+monitoring_docker_network_subnet: 172.20.0.0/16
+
 #dir for store configuration files on monitoring server
-config_dir: "/etc/monitoring"
-keep_prometheus_logs: "200h"
+monitoring_config_dir: "/etc/monitoring"
+monitoring_keep_prometheus_logs: "200h"
 
 monitoring_domain: 127.0.0.1
 monitoring_alertmanager_domain: "http://{{ monitoring_domain }}:{{ monitoring_alertmanager_port }}"
 
 #========= set enpoints for monitor and alert services health checks ========
-cvm_endpoint: "http://127.0.0.1:8080"
-datagrok_endpoint: "http://127.0.0.1:8090"
-blackbox_endpoints:
+monitoring_cvm_endpoint: "http://127.0.0.1:8090"
+monitoring_datagrok_endpoint: "http://127.0.0.1:8080"
+monitoring_blackbox_endpoints:
   # gcompute
-  - "{{ cvm_endpoint }}/grok_compute/info"
+  - "{{ monitoring_cvm_endpoint }}/grok_compute/info"
   #JKG helper
-  - "{{ cvm_endpoint }}/jupyter/helper/info"
+  - "{{ monitoring_cvm_endpoint }}/jupyter/helper/info"
   #notebook helper                        
-  - "{{ cvm_endpoint }}/notebook/helper/info"
+  - "{{ monitoring_cvm_endpoint }}/notebook/helper/info"
   #jupiter notebook              
-  - "{{ cvm_endpoint }}/notebook/api"
+  - "{{ monitoring_cvm_endpoint }}/notebook/api"
   #JKG                      
-  - "{{ cvm_endpoint }}/jupyter/api/swagger.yaml"
+  - "{{ monitoring_cvm_endpoint }}/jupyter/api/swagger.yaml"
   #H20 helper          
-  - "{{ cvm_endpoint }}:5005/helper/info"
+  - "{{ monitoring_cvm_endpoint }}:5005/helper/info"
   #H20"                       
-  - "{{ cvm_endpoint }}:54321/3/About"
-  - "{{ datagrok_endpoint }}/api/admin/health"
+  - "{{ monitoring_cvm_endpoint }}:54321/3/About"
+  - "{{ monitoring_datagrok_endpoint }}/api/admin/health"
 
 #========= enabled deploy profiles ==================
 monitoring_grafana_enabled: true
@@ -38,15 +41,15 @@ monitoring_blackbox_enabled: true
 monitoring_cadvisor_enabled: true
 
 #========= monitoring components docker images ======
-prometheus_image: "prom/prometheus:v2.40.4"
-grafana_image: "grafana/grafana-oss:9.2.6"
-alertmanager_image: "quay.io/prometheus/alertmanager:v0.24.0"
-blackbox_image: "prom/blackbox-exporter:master"
-cadvisor_image: "gcr.io/cadvisor/cadvisor:v0.38.6"
+monitoring_prometheus_image: "prom/prometheus:v2.40.4"
+monitoring_grafana_image: "grafana/grafana-oss:9.2.6"
+monitoring_alertmanager_image: "quay.io/prometheus/alertmanager:v0.24.0"
+monitoring_blackbox_image: "prom/blackbox-exporter:master"
+monitoring_cadvisor_image: "gcr.io/cadvisor/cadvisor:v0.38.6"
 
 #========== monitoring components ports =============
 monitoring_node_exporter_port: "9100"
-monitoring_cadvisor_port: "8181"
+monitoring_cadvisor_port: "8080"
 monitoring_prometheus_port: "9090"
 monitoring_grafana_port: "3000"
 monitoring_alertmanager_port: "9093"
@@ -56,7 +59,7 @@ monitoring_blackbox_port: "9115"
 monitoring_alerts_repeat_message_interval: "30m"
 monitoring_alerts_group_message_interval: "5m"
 #receive resolved issues messages
-monitoring_alerts_send_resolved: false
+monitoring_alerts_send_resolved: true
 
 monitoring_slack_alerts: false
 monitoring_slack_channel: "monitoring"
@@ -65,9 +68,11 @@ monitoring_slack_webhook_url: " "
 
 #E-mail notification configuration vars
 monitoring_email_alerts: true
+monitoring_smtp_host: "127.0.0.1"
 monitoring_smtp_port: 25
+monitoring_smtp_from: "alertmanager@{{ inventory_hostname }}"
 monitoring_smtp_login: ""
 monitoring_smtp_pwd: ""
 monitoring_note_receiver:
   - 'monitoring@datagrok.ai'
-monitoring_smtp_host: "127.0.0.1"
+monitoring_smtp_require_tls: 'true'

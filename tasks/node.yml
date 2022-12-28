@@ -1,14 +1,31 @@
 ---
+
+- name: Create a network
+  community.docker.docker_network:
+    name: "{{ monitoring_docker_network_name }}"
+    ipam_config:
+      - subnet: "{{ monitoring_docker_network_subnet | ansible.utils.ipsubnet }}"
+        gateway: "{{ monitoring_docker_network_subnet | ansible.utils.ipaddr('next_usable') }}"
+
 - name: Run Cadvisor via docker
   docker_container:
-    name: cadvisor
-    image: "{{ cadvisor_image }}"
+    name: monitoring_cadvisor
+    image: "{{ monitoring_cadvisor_image }}"
     volumes:
       - "/:/rootfs:ro"
       - "/var/run:/var/run:rw"
       - "/sys:/sys:ro"
       - "/var/lib/docker/:/var/lib/docker:ro"
+    env:
+      CADVISOR_HEALTHCHECK_URL: http://localhost:{{ monitoring_cadvisor_port }}/healthz
+    command:
+      - "--port={{ monitoring_cadvisor_port }}"
     ports:
-      - "{{ monitoring_cadvisor_port }}:8080"
+      - "{{ monitoring_cadvisor_port }}:{{ monitoring_cadvisor_port }}"
+    networks:
+      - name: "{{ monitoring_docker_network_name }}"
+        aliases:
+          - cadvisor
     restart_policy: always
   when: monitoring_cadvisor_enabled | bool
+  tags: ['cadvisor']

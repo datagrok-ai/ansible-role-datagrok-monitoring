@@ -1,0 +1,99 @@
+#jinja2:lstrip_blocks: True
+---
+# my global config
+global:
+  # scrape_timeout is set to the global default (10s).
+  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+
+{% if monitoring_alertmanager_enabled | default(true) %}
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:{{ monitoring_alertmanager_port }}']
+{% endif %}
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+    - /etc/prometheus/alert_rules.yml
+  # - "second_rules.yml"
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:{{ monitoring_prometheus_port }}']
+    relabel_configs:
+      - target_label: instance
+        replacement: "{{ monitoring_domain }}:{{ monitoring_prometheus_port }}"
+
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: "hardware_metrics"
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+    static_configs:
+      {% for host in (((groups[monitoring_server_inventory_group] | default([])) + (groups[monitoring_targets_inventory_group] | default([]))) | sort | unique) %}
+      - targets: [
+        {%- if host == inventory_hostname -%}
+          '{{ monitoring_docker_network_subnet | ansible.utils.ipaddr('next_usable') }}:{{ monitoring_node_exporter_port }}'
+        {%- else -%}
+          '{{ hostvars[host]["monitoring_advertise_address"] | default(hostvars[host]["ansible_host"]) }}:{{ monitoring_node_exporter_port }}'
+        {%- endif -%}]
+        labels:
+          hostname: '{{ host }}'
+      {% endfor %}
+    relabel_configs:
+      - source_labels: [hostname]
+        target_label: instance
+
+{% if monitoring_cadvisor_enabled | default(true) %}
+  - job_name: "container_metrics"
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+    static_configs:
+      {% for host in (((groups[monitoring_server_inventory_group] | default([])) + (groups[monitoring_targets_inventory_group] | default([]))) | sort | unique) %}
+      - targets: [
+        {%- if host == inventory_hostname -%}
+          'cadvisor:{{ monitoring_cadvisor_port }}'
+        {%- else -%}
+          '{{ hostvars[host]["monitoring_advertise_address"] | default(hostvars[host]["ansible_host"]) }}:{{ monitoring_cadvisor_port }}'
+        {%- endif -%}]
+        labels:
+          hostname: '{{ host }}'
+      {% endfor %}
+    relabel_configs:
+      - source_labels: [hostname]
+        target_label: instance
+{% endif %}
+
+{% if monitoring_blackbox_enabled | default(true) %}
+  - job_name: blackbox # To get metrics about the exporter itself
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['blackbox:{{ monitoring_blackbox_port }}']
+    relabel_configs:
+      - target_label: instance
+        replacement: '{{ monitoring_domain }}:{{ monitoring_blackbox_port }}'
+
+  - job_name: blackbox-http # To get metrics about the exporter’s targets
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+    - targets:
+  {% for server in monitoring_blackbox_endpoints %}
+      - {{ server }}
+  {% endfor %}
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:{{ monitoring_blackbox_port }}
+{% endif %}
