@@ -39,6 +39,7 @@ monitoring_grafana_enabled: true
 monitoring_alertmanager_enabled: true
 monitoring_blackbox_enabled: true
 monitoring_cadvisor_enabled: true
+monitoring_postgresql_enabled: true
 
 #========= monitoring components docker images ======
 monitoring_prometheus_image: "prom/prometheus:v2.40.4"
@@ -76,3 +77,10 @@ monitoring_smtp_pwd: ""
 monitoring_note_receiver:
   - 'monitoring@datagrok.ai'
 monitoring_smtp_require_tls: 'true'
+#=========== postresql monitoring params ==================
+monitoring_pgsql_parameters:
+  DATA_SOURCE_NAME:
+    - "postgresql://postgres:password@localhost:5432/dbname1?sslmode=disable"
+    - "postgresql://postgres:password@localhost:5432/dbname2?sslmode=disable"
+  PG_EXPORTER_WEB_LISTEN_ADDRESS: ":9187"
+  PG_EXPORTER_DISABLE_SETTINGS_METRICS: false
