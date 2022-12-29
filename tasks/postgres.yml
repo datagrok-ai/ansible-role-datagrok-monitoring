@@ -1,0 +1,15 @@
+- name: Run postresql_exporter via docker
+  docker_container:
+    name: monitoring_postgresql
+    image: "quay.io/prometheuscommunity/postgres-exporter"
+    env:
+      {{ monitoring_pgsql_parameters }}
+    ports:
+      - "{{ monitoring_pgsql_db_port }}:{{ monitoring_pgsql_db_port }}"
+    networks:
+      - name: "{{ monitoring_docker_network_name }}"
+        aliases:
+          - pg_exporter
+    restart_policy: always
+  when: monitoring_postgresql_enabled | bool
+  tags: ['pg_exporter']
