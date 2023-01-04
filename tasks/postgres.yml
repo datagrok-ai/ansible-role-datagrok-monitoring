@@ -5,7 +5,7 @@
     env:
       {{ monitoring_pgsql_parameters }}
     ports:
-      - "{{ monitoring_pgsql_db_port }}:{{ monitoring_pgsql_db_port }}"
+      - "{{ monitoring_pgsql_exporter_port }}:{{ monitoring_pgsql_exporter_port }}"
     networks:
       - name: "{{ monitoring_docker_network_name }}"
         aliases:
