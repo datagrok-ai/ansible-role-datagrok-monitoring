@@ -55,6 +55,7 @@ monitoring_prometheus_port: "9090"
 monitoring_grafana_port: "3000"
 monitoring_alertmanager_port: "9093"
 monitoring_blackbox_port: "9115"
+monitoring_pgsql_exporter_port: "9187"
 
 #========== alertmanager params ======================
 monitoring_alerts_repeat_message_interval: "30m"
@@ -78,14 +79,16 @@ monitoring_note_receiver:
   - 'monitoring@datagrok.ai'
 monitoring_smtp_require_tls: 'true'
 #=========== postresql monitoring params ==================
-monitoring_pgsql_db_login: ''
-monitoring_pgsql_db_password: ''
-monitoring_pgsql_db_host: 'datagrok'
-monitoring_pgsql_db_port: 5432
-monitoring_pgsql_db_name: 'postgres'
-monitoring_pgsql_exporter_port: 9187
 monitoring_pgsql_disable_settings_metrics: false
+monitoring_pgsql_dbs:
+  - login: 'postgres'
+    password: 'postgres'
+    host: '127.0.0.1'
+    port: 5432
+    dbname: 'datagrok'
+    sslmode: 'disable'
+
 monitoring_pgsql_parameters:
-  DATA_SOURCE_NAME: ["postgresql://{{ monitoring_pgsql_db_login }}:{{ monitoring_pgsql_db_password }}@{{ monitoring_pgsql_db_host }}:{{ monitoring_pgsql_db_port }}/{{ monitoring_pgsql_db_name }}?sslmode=disable"]
+  DATA_SOURCE_NAME: "{% for db in monitoring_pgsql_dbs %}postgresql://{{ db['login'] }}:{{ db['password'] }}@{{ db['host'] }}:{{ db['port'] }}/{{ db['dbname'] }}?sslmode={{ db['sslmode'] | default('enable') }}{{ ',' if not loop.last }}{% endfor %}"
   PG_EXPORTER_WEB_LISTEN_ADDRESS: ":{{ monitoring_postgres_exporter_port }}"
   PG_EXPORTER_DISABLE_SETTINGS_METRICS: {{ monitoring_pgsql_disable_settings_metrics }}

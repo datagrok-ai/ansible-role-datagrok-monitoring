@@ -97,3 +97,11 @@ scrape_configs:
       - target_label: __address__
         replacement: blackbox:{{ monitoring_blackbox_port }}
 {% endif %}
+
+{% if monitoring_postgresql_enabled | default(true) %}
+  - job_name: "postgresql"
+    static_configs:
+      - targets: ['{{inventory_hostname}}']
+        labels:
+          hostname: [hostname]
+{% endif %}
