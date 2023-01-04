@@ -101,7 +101,7 @@ scrape_configs:
 {% if monitoring_postgresql_enabled | default(true) %}
   - job_name: "postgresql"
     static_configs:
-      - targets: ['{{monitoring_pgsql_db_host}}:{{monitoring_pgsql_exporter_port}}']
+      - targets: ['{{ monitoring_pgsql_db_host }}:{{ monitoring_pgsql_exporter_port }}']
         labels:
           hostname: {{monitoring_pgsql_db_host}}
 {% endif %}
