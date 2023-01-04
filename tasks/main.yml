@@ -9,7 +9,7 @@
   ansible.builtin.include_tasks:
     file: postgres.yml
   when:
-    - inventory_hostname is {{monitoring_pgsql_db_host}}
+    - monitoring_targets_inventory_group in group_names
 
 - name: include server tasks
   ansible.builtin.include_tasks:

@@ -2,7 +2,7 @@
   docker_container:
     name: monitoring_postgresql
     image: "quay.io/prometheuscommunity/postgres-exporter"
-    env: {{ monitoring_pgsql_parameters | default ({}) }}
+    env: "{{ monitoring_pgsql_parameters | default ({}) }}"
     ports:
       - "{{ monitoring_pgsql_exporter_port }}:{{ monitoring_pgsql_exporter_port }}"
     networks:
@@ -10,5 +10,6 @@
         aliases:
           - pg_exporter
     restart_policy: always
+  delegate_to: "{{ monitoring_pgsql_db_host }}"
   when: monitoring_postgresql_enabled | bool
   tags: ['pg_exporter']

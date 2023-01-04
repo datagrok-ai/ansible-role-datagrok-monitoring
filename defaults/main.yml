@@ -80,7 +80,6 @@ monitoring_note_receiver:
 monitoring_smtp_require_tls: 'true'
 #=========== postresql monitoring params ==================
 monitoring_pgsql_db_host: datagrok   #inventory_hostname
-monitoring_pgsql_disable_settings_metrics: false
 monitoring_pgsql_dbs:
   - login: 'postgres'
     password: 'postgres'
@@ -91,5 +90,5 @@ monitoring_pgsql_dbs:
 
 monitoring_pgsql_parameters:
   DATA_SOURCE_NAME: "{% for db in monitoring_pgsql_dbs %}postgresql://{{ db['login'] }}:{{ db['password'] }}@{{ db['host'] }}:{{ db['port'] }}/{{ db['dbname'] }}?sslmode={{ db['sslmode'] | default('enable') }}{{ ',' if not loop.last }}{% endfor %}"
-  PG_EXPORTER_WEB_LISTEN_ADDRESS: ":{{ monitoring_postgres_exporter_port }}"
-  PG_EXPORTER_DISABLE_SETTINGS_METRICS: {{ monitoring_pgsql_disable_settings_metrics }}
+  PG_EXPORTER_WEB_LISTEN_ADDRESS: ":{{ monitoring_pgsql_exporter_port }}"
+  
