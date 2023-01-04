@@ -79,6 +79,7 @@ monitoring_note_receiver:
   - 'monitoring@datagrok.ai'
 monitoring_smtp_require_tls: 'true'
 #=========== postresql monitoring params ==================
+monitoring_pgsql_db_host: datagrok   #inventory_hostname
 monitoring_pgsql_disable_settings_metrics: false
 monitoring_pgsql_dbs:
   - login: 'postgres'
