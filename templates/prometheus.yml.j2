@@ -103,5 +103,5 @@ scrape_configs:
     static_configs:
       - targets: ['{{ monitoring_pgsql_db_host }}:{{ monitoring_pgsql_exporter_port }}']
         labels:
-          hostname: {{monitoring_pgsql_db_host}}
+          hostname: {{ monitoring_pgsql_db_host }}
 {% endif %}
