@@ -10,6 +10,5 @@
         aliases:
           - pg_exporter
     restart_policy: always
-  delegate_to: "{{ monitoring_pgsql_db_host }}"
-  when: monitoring_postgresql_enabled | bool
+  when: monitoring_pgsql_exporter_enabled | bool
   tags: ['pg_exporter']
