@@ -39,7 +39,7 @@ monitoring_grafana_enabled: true
 monitoring_alertmanager_enabled: true
 monitoring_blackbox_enabled: true
 monitoring_cadvisor_enabled: true
-monitoring_postgresql_enabled: true
+monitoring_pgsql_exporter_enabled: true
 
 #========= monitoring components docker images ======
 monitoring_prometheus_image: "prom/prometheus:v2.40.4"
