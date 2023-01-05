@@ -101,7 +101,15 @@ scrape_configs:
 {% if monitoring_pgsql_exporter_enabled | default(true) %}
   - job_name: "postgresql"
     static_configs:
-      - targets: ['{{ hostvars[monitoring_pgsql_db_host]["ansible_host"] }}:{{ monitoring_pgsql_exporter_port }}']
+      - targets: [
+        {%- if monitoring_pgsql_db_host == inventory_hostname -%}
+          'monitoring_postgresql:{{ monitoring_pgsql_exporter_port }}'
+        {%- else -%}
+          '{{ hostvars[monitoring_pgsql_db_host]["monitoring_advertise_address"] | default(hostvars[monitoring_pgsql_db_host]["ansible_host"]) }}:{{ monitoring_pgsql_exporter_port }}'
+        {%- endif -%}]  
         labels:
           hostname: {{ monitoring_pgsql_db_host }}
 {% endif %}
+    relabel_configs:
+      - source_labels: [hostname]
+        target_label: instance
