@@ -8,8 +8,7 @@
 - name: include pgsql_monitoring
   ansible.builtin.include_tasks:
     file: postgres.yml
-  delegate_to: "{{ monitoring_pgsql_db_host }}"
-  run_once: true
+  when: inventory_hostname == "{{ monitoring_pgsql_db_host }}"
 
 - name: include server tasks
   ansible.builtin.include_tasks:
