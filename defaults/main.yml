@@ -40,6 +40,7 @@ monitoring_alertmanager_enabled: true
 monitoring_blackbox_enabled: true
 monitoring_cadvisor_enabled: true
 monitoring_pgsql_exporter_enabled: true
+monitoring_process_exporter_enabled: true
 
 #========= monitoring components docker images ======
 monitoring_prometheus_image: "prom/prometheus:v2.40.4"
@@ -47,6 +48,7 @@ monitoring_grafana_image: "grafana/grafana-oss:9.2.6"
 monitoring_alertmanager_image: "quay.io/prometheus/alertmanager:v0.24.0"
 monitoring_blackbox_image: "prom/blackbox-exporter:master"
 monitoring_cadvisor_image: "gcr.io/cadvisor/cadvisor:v0.38.6"
+monitoring_process_exporter_image: "ncabatoff/process-exporter:0.7.10"
 
 #========== monitoring components ports =============
 monitoring_node_exporter_port: "9100"
@@ -56,6 +58,7 @@ monitoring_grafana_port: "3000"
 monitoring_alertmanager_port: "9093"
 monitoring_blackbox_port: "9115"
 monitoring_pgsql_exporter_port: "9187"
+monitoring_process_exporter_port: "9256"
 
 #========== alertmanager params ======================
 monitoring_alerts_repeat_message_interval: "30m"
