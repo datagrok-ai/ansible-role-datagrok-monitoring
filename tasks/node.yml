@@ -30,6 +30,16 @@
   when: monitoring_cadvisor_enabled | bool
   tags: ['cadvisor']
 
+- name: generating configs process_exporter
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "0644" 
+  with_items:
+     -  { src: "processes-exporter.yml.j2" , dest: "{{ monitoring_config_dir }}/process-exporter.yml" }
+  notify: 
+     - restart_processes_exporter
+
 - name: Run Process exporter via docker
   docker_container:
     name: monitoring_process_exporter
@@ -37,8 +47,10 @@
     privileged: true
     volumes:
       - "/proc:/host/proc"
+      - "{{ monitoring_config_dir }}/process-exporter.yml:/config/process-exporter.yml"
     command:
       - "--procfs=/host/proc"
+      - "--config.path=/config/process-exporter.yml"
     ports:
       - "{{ monitoring_process_exporter_port }}:{{ monitoring_process_exporter_port }}"
     networks:
