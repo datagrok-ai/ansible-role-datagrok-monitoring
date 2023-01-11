@@ -38,7 +38,7 @@
     volumes:
       - "/proc:/host/proc"
     command:
-      - "--procfs=/host/proc"
+      - "--procfs /host/proc"
     ports:
       - "{{ monitoring_process_exporter_port }}:{{ monitoring_process_exporter_port }}"
     networks:
