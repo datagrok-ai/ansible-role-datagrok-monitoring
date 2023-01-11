@@ -109,25 +109,7 @@ scrape_configs:
         {%- endif -%}]  
         labels:
           hostname: {{ monitoring_pgsql_db_host }}
+{% endif %}
     relabel_configs:
       - source_labels: [hostname]
         target_label: instance
-{% endif %}
-
-{% if monitoring_process_exporter_enabled | default(true) %}
-  - job_name: "zombie_metrics"
-    static_configs:
-      {% for host in (((groups[monitoring_server_inventory_group] | default([])) + (groups[monitoring_targets_inventory_group] | default([]))) | sort | unique) %}
-      - targets: [
-        {%- if host == inventory_hostname -%}
-          'process_exporter:{{ monitoring_process_exporter_port }}'
-        {%- else -%}
-          '{{ hostvars[host]["monitoring_advertise_address"] | default(hostvars[host]["ansible_host"]) }}:{{ monitoring_process_exporter_port }}'
-        {%- endif -%}]
-        labels:
-          hostname: '{{ host }}'
-      {% endfor %}
-    relabel_configs:
-      - source_labels: [hostname]
-        target_label: instance
-{% endif %}

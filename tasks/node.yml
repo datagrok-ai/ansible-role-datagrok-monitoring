@@ -29,23 +29,3 @@
     restart_policy: always
   when: monitoring_cadvisor_enabled | bool
   tags: ['cadvisor']
-
-- name: Run Process exporter via docker
-  docker_container:
-    name: monitoring_process_exporter
-    image: "{{ monitoring_process_exporter_image }}"
-    privileged: true
-    volumes:
-      - "/proc:/host/proc"
-    command:
-      - "--procfs /host/proc"
-    ports:
-      - "{{ monitoring_process_exporter_port }}:{{ monitoring_process_exporter_port }}"
-    networks:
-      - name: "{{ monitoring_docker_network_name }}"
-        aliases:
-          - process_exporter
-    restart_policy: always
-  when: monitoring_process_exporter_enabled | bool
-  tags: ['process_exporter']
-

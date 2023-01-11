@@ -150,12 +150,4 @@ groups:
       annotations:
         summary: Blackbox probe HTTP failure (instance {{ $labels.instance }})
         description: "HTTP status code is not 200-399\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
-    - alert: ZombieArmyCome
-      expr: namedprocess_namegroup_states{groupname="",state="Zombie"} > 5000
-      for: 30m
-      labels:
-        severity: info
-      annotations:
-        summary: 'Zombie army attack!'
-        description: "App host: {% raw %}{{ $labels.host }}{% endraw %}\nProcesses count: {% raw %}{{ $value | humanize }}{% endraw %} zombies during last 30 minutes!"
 {% endraw %}
