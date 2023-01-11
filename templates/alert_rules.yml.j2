@@ -157,5 +157,5 @@ groups:
         severity: info
       annotations:
         summary: 'Zombie army attack!'
-        description: "App host: {% raw %}{{ $labels.host }}{% endraw %}\nProcesses count: {% raw %}{{ $value | humanize }}{% endraw %} zombies during last 30 minutes!"
+        description: "App host: {{ $labels.host }}\nProcesses count: {{ $value | humanize }} zombies during last 30 minutes!"
 {% endraw %}
