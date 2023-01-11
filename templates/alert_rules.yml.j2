@@ -150,7 +150,7 @@ groups:
       annotations:
         summary: Blackbox probe HTTP failure (instance {{ $labels.instance }})
         description: "HTTP status code is not 200-399\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
-    - alert: ZombieArmyCome
+    - alert: ZombieArmyAttack
       expr: node_processes_state{state="Z"} > 5000 OR node_processes_threads_state{thread_state="Z"} > 5000
       for: 10m
       labels:
