@@ -59,5 +59,7 @@ receivers:
   {% for receiver in monitoring_note_receiver %}
   - to: "{{ receiver }}"  
     send_resolved: {{ monitoring_alerts_send_resolved }}
+    headers:
+      subject: {% raw %}'[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }} on {{ .CommonLabels.instance }} {{ else }}:{{ .Alerts.Resolved | len }}{{ end }}] {{ .CommonLabels.alertname }} on {{ .CommonLabels.instance }}'{% endraw %}
   {% endfor %}
 {% endif %}
