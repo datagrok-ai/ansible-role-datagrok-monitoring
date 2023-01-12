@@ -26,7 +26,6 @@
     mode: "0644"
   with_items:
      -  { src: "alertmanager.yml.j2" , dest: "{{ monitoring_config_dir }}/alertmanager.yml" }
-     -  { src: "alert_email.tmpl.j2" , dest: "{{ monitoring_config_dir }}/alert_email.tmpl" }
   notify: 
      - restart_alertmanager
 

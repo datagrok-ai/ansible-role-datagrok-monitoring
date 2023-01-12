@@ -17,8 +17,7 @@ global:
   smtp_auth_password: "{{ monitoring_smtp_pwd }}"
   {% endif %}
 {% endif %}
-templates:
-- '/etc/alertmanager/*tmpl'
+
 route:
   receiver: 'DevOps'
   group_by: [alertname, InstanceState]
@@ -58,9 +57,7 @@ receivers:
 {% if monitoring_email_alerts | default(true) %}
   email_configs:
   {% for receiver in monitoring_note_receiver %}
-  - to: "{{ receiver }}"
-    headers:
-      subject: '{{ template "__subject" }}'
+  - to: "{{ receiver }}"  
     send_resolved: {{ monitoring_alerts_send_resolved }}
   {% endfor %}
 {% endif %}

@@ -47,7 +47,6 @@ services:
     volumes:
       - {{ monitoring_config_dir }}/alertmanager.yml:/etc/alertmanager/alertmanager.yml
       - alertmanager_data:/alertmanager/data/
-      - {{ monitoring_config_dir }}/alert_email.tmpl:/etc/alertmanager/alert_email.tmpl
     networks:
       {{ monitoring_docker_network_name }}:
         aliases:
