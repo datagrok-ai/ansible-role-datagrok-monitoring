@@ -60,6 +60,6 @@ receivers:
   - to: "{{ receiver }}"  
     send_resolved: {{ monitoring_alerts_send_resolved }}
     headers:
-      subject: {% raw %}'[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ else }}:{{ .Alerts.Resolved | len }}{{ end }}] {{ .CommonLabels.alertname }} on {{ .CommonLabels.instance }}'{% endraw %}
+      subject: {% raw %}'[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ else }}:{{ .Alerts.Resolved | len }}{{ end }}] {{ .CommonLabels.alertname }} on {{ .CommonLabels.instance | toUpper }}'{% endraw %}
   {% endfor %}
 {% endif %}
