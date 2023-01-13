@@ -2,7 +2,7 @@
 groups:
   - name: InstanceState
     rules:
-    - alert: InstanceDown
+    - alert: Instance_is_Down
       expr: 'up == 0'
       for: 5m
       labels:
@@ -11,7 +11,7 @@ groups:
         description: '{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes.'
         summary: 'Instance {{ $labels.instance }} down'
 
-    - alert: HostHighCpuLoad
+    - alert: "HostCpuLoad > 90%"
       expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 90
       for: 3m
       labels:
@@ -20,16 +20,16 @@ groups:
         summary: Host high CPU load (instance {{ $labels.instance }})
         description: "CPU load is > 90%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
-    - alert: HostOutOfMemory
-      expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 20
+    - alert: "HostMemoryLoad > 85%"
+      expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 15
       for: 2m
       labels:
         severity: critical
       annotations:
         summary: Host out of memory (instance {{ $labels.instance }})
-        description: "Node memory is filling up (< 20% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+        description: "Node memory is filling up (< 15% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
     
-    - alert: HostUnusualNetworkThroughputOut
+    - alert: "Host network throughput out > 80 MB/s"
       expr: sum by (instance) (rate(node_network_transmit_bytes_total[2m])) / 1024 / 1024 > 80
       for: 5m
       labels:
@@ -46,6 +46,7 @@ groups:
       annotations:
         summary: Host OOM kill detected (instance {{ $labels.instance }})
         description: "OOM kill detected\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
     - alert: HostNetworkInterfaceSaturated
       expr: (rate(node_network_receive_bytes_total{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"}[1m]) + rate(node_network_transmit_bytes_total{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"}[1m])) / node_network_speed_bytes{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"} > 0.8 < 10000
       for: 1m
@@ -59,7 +60,7 @@ groups:
    # "--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|run)($|/)".
    # Same rule using "node_filesystem_free_bytes" will fire when disk fills for non-root users.
     
-    - alert: HostOutOfDiskSpace
+    - alert: "Disk Space < 10% left"
       expr: (node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes < 10 and ON (instance, device, mountpoint) node_filesystem_readonly == 0
       for: 5m
       labels:
@@ -68,7 +69,7 @@ groups:
         summary: Host out of disk space (instance {{ $labels.instance }})
         description: "Disk is almost full (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
     
-    - alert: HostOutOfInodes
+    - alert: "Inodes < 10% left" 
       expr: node_filesystem_files_free / node_filesystem_files * 100 < 10 and ON (instance, device, mountpoint) node_filesystem_readonly == 0
       for: 10m
       labels:
@@ -77,7 +78,7 @@ groups:
         summary: Host out of inodes (instance {{ $labels.instance }})
         description: "Disk is almost running out of available inodes (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
-    - alert: HostSwapIsFillingUp
+    - alert: "Swap < 20% left" 
       expr: (1 - (node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes)) * 100 > 80
       for: 2m
       labels:
@@ -87,17 +88,8 @@ groups:
         description: "Swap is filling up (>80%)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
  
- #container alerts
-   # This rule can be very noisy in dynamic infra with legitimate container start/stop/deployment.
-   # - alert: ContainerKilled
-   #   expr: time() - container_last_seen > 60
-   #   for: 0m
-   #   labels:
-   #     severity: warning
-   #   annotations:
-   #     summary: Container killed (instance {{ $labels.instance }})
-   #     description: "A container has disappeared\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
-      # This rule can be very noisy in dynamic infra with legitimate container start/stop/deployment.
+#container alerts
+# This rule can be very noisy in dynamic infra with legitimate container start/stop/deployment.
     - alert: ContainerAbsent
       expr: absent(container_last_seen)
       for: 5m
@@ -108,7 +100,7 @@ groups:
         description: "A container is absent for 5 min\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
     
       
-    - alert: ContainerCpuUsage
+    - alert: "ContainerCpuUsage is above 90%"
       expr: (sum(rate(container_cpu_usage_seconds_total{name!=""}[3m])) BY (instance, name) * 100) > 90
       for: 3m
       labels:
@@ -117,14 +109,14 @@ groups:
         summary: Container CPU usage (instance {{ $labels.instance }})
         description: "Container CPU usage is above 90%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
    
-    - alert: ContainerMemoryUsage
-      expr: (sum(container_memory_working_set_bytes{name!=""}) BY (instance, name) / sum(container_spec_memory_limit_bytes > 0) BY (instance, name) * 100) > 86
+    - alert: "ContainerMemoryUsage is above 85%"
+      expr: (sum(container_memory_working_set_bytes{name!=""}) BY (instance, name) / sum(container_spec_memory_limit_bytes > 0) BY (instance, name) * 100) > 85
       for: 2m
       labels:
         severity: warning
       annotations:
         summary: Container Memory usage (instance {{ $labels.instance }})
-        description: "Container Memory usage is above 86%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+        description: "Container Memory usage is above 85%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
     - alert: ContainerHighThrottleRate
       expr: rate(container_cpu_cfs_throttled_seconds_total[3m]) > 1
@@ -134,6 +126,7 @@ groups:
       annotations:
         summary: Container high throttle rate (instance {{ $labels.instance }})
         description: "Container is being throttled\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
     - alert: BlackboxProbeFailed
       expr: probe_success == 0
       for: 1m
@@ -142,6 +135,7 @@ groups:
       annotations:
         summary: Blackbox probe failed (instance {{ $labels.instance }})
         description: "Probe failed\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
     - alert: BlackboxProbeHttpFailure
       expr: probe_http_status_code <= 199 OR probe_http_status_code >= 400
       for: 0m
@@ -150,7 +144,8 @@ groups:
       annotations:
         summary: Blackbox probe HTTP failure (instance {{ $labels.instance }})
         description: "HTTP status code is not 200-399\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
-    - alert: ZombieArmyAttack
+
+    - alert: "Zombie processes is over 5000" 
       expr: node_processes_state{state="Z"} > 5000 OR node_processes_threads_state{thread_state="Z"} > 5000
       for: 10m
       labels:
