@@ -27,7 +27,7 @@ route:
   - receiver: 'BlackHole'
     matchers:
     - job="container_metrics"
-    - name=~"^(?!monitoring|dev|test|demo|registry|release|localhost_).*$"
+    - name=~"^(\?!monitoring|dev|test|demo|registry|release|localhost_).*$"
 
 receivers:
 - name: 'BlackHole'
