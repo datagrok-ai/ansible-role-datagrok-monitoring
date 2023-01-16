@@ -13,7 +13,7 @@ groups:
 
     - alert: "HostCpuLoad > 90%"
       expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 90
-      for: 3m
+      for: 5m
       labels:
         severity: warning
       annotations:
@@ -22,7 +22,7 @@ groups:
 
     - alert: "HostMemoryLoad > 85%"
       expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 15
-      for: 2m
+      for: 5m
       labels:
         severity: critical
       annotations:
@@ -31,7 +31,7 @@ groups:
     
     - alert: "Host network throughput out > 80 MB/s"
       expr: sum by (instance) (rate(node_network_transmit_bytes_total[2m])) / 1024 / 1024 > 80
-      for: 5m
+      for: 10m
       labels:
         severity: warning
       annotations:
@@ -49,7 +49,7 @@ groups:
 
     - alert: HostNetworkInterfaceSaturated
       expr: (rate(node_network_receive_bytes_total{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"}[1m]) + rate(node_network_transmit_bytes_total{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"}[1m])) / node_network_speed_bytes{device!~"^tap.*|^vnet.*|^veth.*|^tun.*"} > 0.8 < 10000
-      for: 1m
+      for: 5m
       labels:
         severity: warning
       annotations:
@@ -73,7 +73,7 @@ groups:
       expr: node_filesystem_files_free / node_filesystem_files * 100 < 10 and ON (instance, device, mountpoint) node_filesystem_readonly == 0
       for: 10m
       labels:
-        severity: warning
+        severity: critical
       annotations:
         summary: Host out of inodes (instance {{ $labels.instance }})
         description: "Disk is almost running out of available inodes (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -94,7 +94,7 @@ groups:
       expr: absent(container_last_seen)
       for: 5m
       labels:
-        severity: warning
+        severity: critical
       annotations:
         summary: Container absent (instance {{ $labels.instance }})
         description: "A container is absent for 5 min\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -102,7 +102,7 @@ groups:
       
     - alert: "ContainerCpuUsage is above 90%"
       expr: (sum(rate(container_cpu_usage_seconds_total{name!=""}[3m])) BY (instance, name) * 100) > 90
-      for: 3m
+      for: 5m
       labels:
         severity: warning
       annotations:
@@ -111,7 +111,7 @@ groups:
    
     - alert: "ContainerMemoryUsage is above 85%"
       expr: (sum(container_memory_working_set_bytes{name!=""}) BY (instance, name) / sum(container_spec_memory_limit_bytes > 0) BY (instance, name) * 100) > 85
-      for: 2m
+      for: 5m
       labels:
         severity: warning
       annotations:
@@ -120,7 +120,7 @@ groups:
 
     - alert: ContainerHighThrottleRate
       expr: rate(container_cpu_cfs_throttled_seconds_total[3m]) > 1
-      for: 2m
+      for: 5m
       labels:
         severity: warning
       annotations:
@@ -129,7 +129,7 @@ groups:
 
     - alert: BlackboxProbeFailed
       expr: probe_success == 0
-      for: 1m
+      for: 2m
       labels:
         severity: critical
       annotations:
@@ -138,7 +138,7 @@ groups:
 
     - alert: BlackboxProbeHttpFailure
       expr: probe_http_status_code <= 199 OR probe_http_status_code >= 400
-      for: 0m
+      for: 5m
       labels:
         severity: critical
       annotations:
