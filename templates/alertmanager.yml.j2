@@ -1,6 +1,7 @@
 #jinja2:lstrip_blocks: True
 ---
 global:
+  resolve_timeout: 15m
 {% if monitoring_slack_alerts | default(false) %}
   slack_api_url: "{{ monitoring_slack_webhook_url }}"
 {% endif %}
