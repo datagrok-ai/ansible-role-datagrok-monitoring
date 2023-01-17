@@ -12,7 +12,7 @@ groups:
         summary: 'Instance {{ $labels.instance }} down'
 
     - alert: "HostCpuLoad > 90%"
-      expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 90
+      expr: 100 - (avg by(instance, job) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 90
       for: 5m
       labels:
         severity: warning
@@ -30,7 +30,7 @@ groups:
         description: "Node memory is filling up (< 15% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
     
     - alert: "Host network throughput out > 80 MB/s"
-      expr: sum by (instance) (rate(node_network_transmit_bytes_total[2m])) / 1024 / 1024 > 80
+      expr: sum by (instance, job) (rate(node_network_transmit_bytes_total[2m])) / 1024 / 1024 > 80
       for: 10m
       labels:
         severity: warning
@@ -101,7 +101,7 @@ groups:
     
       
     - alert: "ContainerCpuUsage is above 90%"
-      expr: (sum(rate(container_cpu_usage_seconds_total{name!=""}[3m])) BY (instance, name) * 100) > 90
+      expr: (sum(rate(container_cpu_usage_seconds_total{name!=""}[3m])) BY (instance, name, job) * 100) > 90
       for: 5m
       labels:
         severity: warning
@@ -110,7 +110,7 @@ groups:
         description: "Container CPU usage is above 90%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
    
     - alert: "ContainerMemoryUsage is above 85%"
-      expr: (sum(container_memory_working_set_bytes{name!=""}) BY (instance, name) / sum(container_spec_memory_limit_bytes > 0) BY (instance, name) * 100) > 85
+      expr: (sum(container_memory_working_set_bytes{name!=""}) BY (instance, name, job) / sum(container_spec_memory_limit_bytes > 0) BY (instance, name, job) * 100) > 85
       for: 5m
       labels:
         severity: warning

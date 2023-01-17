@@ -27,6 +27,7 @@ route:
   - receiver: 'null'
     matchers:
     - name!~"^(monitoring|dev|test|demo|registry|release|localhost_).*$"
+    - job="container_metrics"
 
 receivers:
 - name: 'null'
