@@ -102,7 +102,7 @@ groups:
       
     - alert: "ContainerCpuUsage is above 90%"
       expr: (sum(rate(container_cpu_usage_seconds_total{name!=""}[3m])) BY (instance, name, job) * 100) > 90
-      for: 5m
+      for: 10m
       labels:
         severity: warning
       annotations:
