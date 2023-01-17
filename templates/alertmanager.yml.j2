@@ -20,7 +20,7 @@ global:
 
 route:
   receiver: 'DevOps'
-  group_by: [alertname, InstanceState]
+  group_by: [alertname, InstanceState, name]
   group_interval: {{ monitoring_alerts_group_message_interval }}
   repeat_interval: {{ monitoring_alerts_repeat_message_interval }}
   routes: 
@@ -66,6 +66,6 @@ receivers:
   - to: "{{ receiver }}"
     send_resolved: {{ monitoring_alerts_send_resolved }}
     headers:
-      subject: {% raw %}'[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ else }}:{{ .Alerts.Resolved | len }}{{ end }}] {{ .CommonLabels.alertname }} on {{ .CommonLabels.instance | toUpper }}'{% endraw %}
+      subject: {% raw %}'[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ else }}:{{ .Alerts.Resolved | len }}{{ end }}] {{ .CommonAnnotations.summary }} '{% endraw %}
   {% endfor %}
 {% endif %}
