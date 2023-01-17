@@ -24,15 +24,12 @@ route:
   group_interval: {{ monitoring_alerts_group_message_interval }}
   repeat_interval: {{ monitoring_alerts_repeat_message_interval }}
   routes: 
-  - receiver: 'BlackHole'
+  - receiver: 'null'
     matchers:
-    - job="container_metrics"
-  - receiver: 'DevOps'
-    matchers:
-    - name=~"^(monitoring|dev|test|demo|registry|release|localhost_).*$"
+    - name!~"^(monitoring|dev|test|demo|registry|release|localhost_).*$"
 
 receivers:
-- name: 'BlackHole'
+- name: 'null'
 - name: 'DevOps'
 {% if monitoring_slack_alerts | default(false) %}
   slack_configs:
