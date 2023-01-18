@@ -85,7 +85,7 @@ Role Variables
 |**monitoring_note_receiver**| `monitoring_note_receiver:`<br> `- 'monitoring@datagrok.ai'`|E-mail for alert receiving. Can have several values. |
 |**monitoring_smtp_require_tls**| true |Enable tls for alert messages|
 |**monitoring_pgsql_db_host**|datagrok|Monitored database host|
-|**monitoring_pgsql_dbs**|`- login: 'postgres'`<br>`  password: 'postgres'`<br>`  host: '127.0.0.1'`<br>`  port: 5432`<br>`  dbname: 'datagrok'`<br>`  sslmode: 'disable'` |Monitored database credentials|
+|**monitoring_pgsql_dbs**|`- login: 'postgres'`<br>&emsp;&nbsp;`password: 'postgres'`<br>&emsp;&nbsp;`host: '127.0.0.1'`<br>&emsp;&nbsp;`port: 5432`<br>&emsp;&nbsp;`dbname: 'datagrok'`<br>&emsp;&nbsp;`sslmode: 'disable'` |Monitored database credentials|
 |**monitoring_pgsql_parameters**|DATA_SOURCE_NAME: [value](https://github.com/datagrok-ai/ansible-role-datagrok-monitoring/blob/pgsql/defaults/main.yml#L92)<br>PG_EXPORTER_WEB_LISTEN_ADDRESS:<br>":{{ monitoring_pgsql_exporter_port }}"|Launch parameters for <br> PostgreSql monitoring|
 
 
