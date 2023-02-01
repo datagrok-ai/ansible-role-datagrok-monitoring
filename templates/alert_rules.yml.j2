@@ -17,7 +17,7 @@ groups:
       labels:
         severity: warning
       annotations:
-        summary: "CpuLoad > 90% on {{ $labels.instance }}"
+        summary: "{ $labels.instance }}: CpuLoad > 90%"
         description: "CPU load is > 90%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
     - alert: "HostMemoryLoad > 85%"
@@ -26,7 +26,7 @@ groups:
       labels:
         severity: critical
       annotations:
-        summary: "MemoryLoad > 85% on {{ $labels.instance }}"
+        summary: "{{ $labels.instance }}: MemoryLoad > 85%"
         description: "Node memory is filling up (< 15% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
     
     - alert: "Host network throughput out > 80 MB/s"
@@ -35,7 +35,7 @@ groups:
       labels:
         severity: warning
       annotations:
-        summary: "Host network throughput out > 80 MB/s on {{ $labels.instance }}"
+        summary: "{{ $labels.instance }}: Host network throughput out > 80 MB/s"
         description: "Host network interfaces are probably sending too much data (> 80 MB/s)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
     - alert: HostOomKillDetected
@@ -44,7 +44,7 @@ groups:
       labels:
         severity: critical
       annotations:
-        summary: "Host OOM kill detected on {{ $labels.instance }}"
+        summary: "{{ $labels.instance }}: Host OOM kill detected"
         description: "OOM kill detected\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
     - alert: HostNetworkInterfaceSaturated
@@ -53,7 +53,7 @@ groups:
       labels:
         severity: warning
       annotations:
-        summary: "Host Network Interface Saturated on {{ $labels.instance }}"
+        summary: "{{ $labels.instance }}: Host Network Interface Saturated"
         description: "The network interface \"{{ $labels.device }}\" on \"{{ $labels.instance }}\" is getting overloaded.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
  # Please add ignored mountpoints in node_exporter parameters like
@@ -66,7 +66,7 @@ groups:
       labels:
         severity: critical
       annotations:
-        summary: "Disk Space < 10% left on {{ $labels.instance }}"
+        summary: "{{ $labels.instance }}: Disk Space < 10% left"
         description: "Disk is almost full (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
     
     - alert: "Inodes < 10% left" 
@@ -75,7 +75,7 @@ groups:
       labels:
         severity: critical
       annotations:
-        summary: "Inodes < 10% left on {{ $labels.instance }}"
+        summary: "{{ $labels.instance }}: Inodes < 10% left"
         description: "Disk is almost running out of available inodes (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
     - alert: "Swap < 20% left" 
@@ -84,7 +84,7 @@ groups:
       labels:
         severity: critical
       annotations:
-        summary: "Swap < 20% left on {{ $labels.instance }}"
+        summary: "{{ $labels.instance }}: Swap < 20% left"
         description: "Swap is filling up (>80%)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
  
@@ -96,7 +96,7 @@ groups:
       labels:
         severity: critical
       annotations:
-        summary: "Container {{ $labels.name }} is down on {{ $labels.instance }}"
+        summary: "{{ $labels.instance }}: {{ $labels.name }} container is down"
         description: "A container is down for 5 min\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
     
       
@@ -106,7 +106,7 @@ groups:
       labels:
         severity: warning
       annotations:
-        summary: "Container {{ $labels.name }} CPU usage > 90% on {{ $labels.instance }}"
+        summary: "{{ $labels.instance }}: Container {{ $labels.name }} CPU usage > 90%"
         description: "Container CPU usage is above 90%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
    
     - alert: "ContainerMemoryUsage is above 85%"
@@ -115,7 +115,7 @@ groups:
       labels:
         severity: warning
       annotations:
-        summary: "Container {{ $labels.name }} Memory usage > 85% on {{ $labels.instance }}"
+        summary: "{{ $labels.instance }}: Container {{ $labels.name }} Memory usage > 85%"
         description: "Container Memory usage is above 85%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
     - alert: ContainerHighThrottleRate
@@ -124,7 +124,7 @@ groups:
       labels:
         severity: warning
       annotations:
-        summary: "Container {{ $labels.name }} high throttle rate on {{ $labels.instance }}"
+        summary: "{{ $labels.instance }}: Container {{ $labels.name }} high throttle rate"
         description: "Container is being throttled\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
     - alert: BlackboxProbeFailed
@@ -142,7 +142,7 @@ groups:
       labels:
         severity: critical
       annotations:
-        summary: "Blackbox HTTP code: {{ $value }} on {{ $labels.instance }}"
+        summary: "{{ $value }} HTTP code on {{ $labels.instance }}"
         description: "HTTP status code is not 200-399\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
     - alert: "Zombie processes is over 5000" 
@@ -151,6 +151,6 @@ groups:
       labels:
         severity: critical
       annotations:
-        summary: "Zombie processes > 5000 on {{ $labels.instance }}"
+        summary: "{{ $labels.instance }}: Zombie processes > 5000"
         description: "Instance {{ $labels.instance }}: Processes count: {{ $value | humanize }} zombies during last 10 minutes!"
 {% endraw %}
