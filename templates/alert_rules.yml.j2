@@ -115,7 +115,7 @@ groups:
       labels:
         severity: warning
       annotations:
-        summary: "{{ $labels.instance }}: Container {{ $labels.name }} Memory usage > 85%"
+        summary: "{{ $labels.instance }}: {{ $labels.name }} container Memory usage > 85%"
         description: "Container Memory usage is above 85%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
     - alert: ContainerHighThrottleRate
