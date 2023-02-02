@@ -31,5 +31,6 @@ dependencies:
       prometheus_node_exporter_config_flags:
         'web.listen-address': '0.0.0.0:{{ monitoring_node_exporter_port }}'
         'log.level': 'info'
+      prometheus_node_exporter_enabled_collectors: [processes]
     when:
       - monitoring_targets_inventory_group in group_names

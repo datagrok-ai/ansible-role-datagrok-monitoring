@@ -1,6 +1,7 @@
 #jinja2:lstrip_blocks: True
 ---
 global:
+  resolve_timeout: 15m
 {% if monitoring_slack_alerts | default(false) %}
   slack_api_url: "{{ monitoring_slack_webhook_url }}"
 {% endif %}
@@ -20,11 +21,22 @@ global:
 
 route:
   receiver: 'DevOps'
-  group_by: [alertname, InstanceState]
+  group_by: [alertname, InstanceState, name]
   group_interval: {{ monitoring_alerts_group_message_interval }}
   repeat_interval: {{ monitoring_alerts_repeat_message_interval }}
+{% if monitoring_except_rules | default([]) | length > 0 %}
+  routes: 
+  {% for rule in monitoring_except_rules %}
+  - receiver: "{{ rule.receiver | default('null') }}"
+    matchers:
+    {% for matcher in  rule.matchers %}
+        - {{ matcher }}
+    {% endfor %}
+{% endfor %}
+{% endif %}
 
 receivers:
+- name: 'null'
 - name: 'DevOps'
 {% if monitoring_slack_alerts | default(false) %}
   slack_configs:
@@ -57,7 +69,9 @@ receivers:
 {% if monitoring_email_alerts | default(true) %}
   email_configs:
   {% for receiver in monitoring_note_receiver %}
-  - to: "{{ receiver }}"  
+  - to: "{{ receiver }}"
     send_resolved: {{ monitoring_alerts_send_resolved }}
+    headers:
+      subject: {% raw %}'[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ else }}:{{ .Alerts.Resolved | len }}{{ end }}] {{ .CommonAnnotations.summary }} '{% endraw %}
   {% endfor %}
 {% endif %}

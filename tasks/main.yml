@@ -1,9 +1,16 @@
 ---
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  ansible.builtin.meta: flush_handlers
 - name: include targets tasks
   ansible.builtin.include_tasks:
     file: node.yml
   when:
     - monitoring_targets_inventory_group in group_names
+
+- name: include pgsql_monitoring
+  ansible.builtin.include_tasks:
+    file: postgres.yml
+  when: inventory_hostname == "{{ monitoring_pgsql_db_host }}"
 
 - name: include server tasks
   ansible.builtin.include_tasks:

@@ -39,6 +39,7 @@ monitoring_grafana_enabled: true
 monitoring_alertmanager_enabled: true
 monitoring_blackbox_enabled: true
 monitoring_cadvisor_enabled: true
+monitoring_pgsql_exporter_enabled: true
 
 #========= monitoring components docker images ======
 monitoring_prometheus_image: "prom/prometheus:v2.40.4"
@@ -54,6 +55,7 @@ monitoring_prometheus_port: "9090"
 monitoring_grafana_port: "3000"
 monitoring_alertmanager_port: "9093"
 monitoring_blackbox_port: "9115"
+monitoring_pgsql_exporter_port: "9187"
 
 #========== alertmanager params ======================
 monitoring_alerts_repeat_message_interval: "30m"
@@ -76,3 +78,17 @@ monitoring_smtp_pwd: ""
 monitoring_note_receiver:
   - 'monitoring@datagrok.ai'
 monitoring_smtp_require_tls: 'true'
+#=========== postresql monitoring params ==================
+monitoring_pgsql_db_host: datagrok   #inventory_hostname
+monitoring_pgsql_dbs:
+  - login: 'postgres'
+    password: 'postgres'
+    host: '127.0.0.1'
+    port: 5432
+    dbname: 'datagrok'
+    sslmode: 'disable'
+
+monitoring_pgsql_parameters:
+  DATA_SOURCE_NAME: "{% for db in monitoring_pgsql_dbs %}postgresql://{{ db['login'] }}:{{ db['password'] }}@{{ db['host'] }}:{{ db['port'] }}/{{ db['dbname'] }}?sslmode={{ db['sslmode'] | default('enable') }}{{ ',' if not loop.last }}{% endfor %}"
+  PG_EXPORTER_WEB_LISTEN_ADDRESS: ":{{ monitoring_pgsql_exporter_port }}"
+  
