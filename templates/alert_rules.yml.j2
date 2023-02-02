@@ -133,7 +133,7 @@ groups:
       labels:
         severity: critical
       annotations:
-        summary: "Blackbox probe failed on {{ $labels.instance }}"
+        summary: "{{ $labels.instance }}: Blackbox probe failed"
         description: "Probe failed\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
     - alert: BlackboxProbeHttpFailure
