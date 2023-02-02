@@ -17,7 +17,7 @@ groups:
       labels:
         severity: warning
       annotations:
-        summary: "{ $labels.instance }}: CpuLoad > 90%"
+        summary: "{{ $labels.instance }}: CpuLoad > 90%"
         description: "CPU load is > 90%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
     - alert: "HostMemoryLoad > 85%"
