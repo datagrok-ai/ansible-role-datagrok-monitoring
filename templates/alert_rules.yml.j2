@@ -106,7 +106,7 @@ groups:
       labels:
         severity: warning
       annotations:
-        summary: "{{ $labels.instance }}: Container {{ $labels.name }} CPU usage > 90%"
+        summary: "{{ $labels.instance }}: {{ $labels.name }} container CPU usage > 90%"
         description: "Container CPU usage is above 90%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
    
     - alert: "ContainerMemoryUsage is above 85%"
