@@ -142,7 +142,7 @@ groups:
       labels:
         severity: critical
       annotations:
-        summary: "{{ $value }} HTTP code on {{ $labels.instance }}"
+        summary: "{{ $labels.instance }}: {{ $value }} HTTP code"
         description: "HTTP status code is not 200-399\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
     - alert: "Zombie processes is over 5000" 
