@@ -9,7 +9,7 @@ modules:
       ip_protocol_fallback: true
       follow_redirects: true
       enable_http2: true
-{% if monitoring_alert_ssl_expire_enabled | default(false) %}
+{% if monitoring_alert_ssl_expire_enabled | default(true) %}
   tcp_connect:
     prober: tcp
     timeout: 60s

@@ -154,7 +154,7 @@ groups:
         summary: "{{ $labels.instance }}: Zombie processes > 5000"
         description: "Instance {{ $labels.instance }}: Processes count: {{ $value | humanize }} zombies during last 10 minutes!"
 {% endraw %}
-{% if monitoring_alert_ssl_expire_enabled | default(false) %}
+{% if monitoring_alert_ssl_expire_enabled | default(true) %}
     - alert: SSLCertificateExpiry
       expr: {% raw %}probe_ssl_earliest_cert_expiry{instance=~"$target"}{% endraw %} - time() < {{ monitoring_alert_ssl_expire_time }}
       for: 0m

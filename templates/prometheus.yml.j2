@@ -83,7 +83,7 @@ scrape_configs:
   - job_name: blackbox-http # To get metrics about the exporter’s targets
     metrics_path: /probe
     params:
-{% if monitoring_alert_ssl_expire_enabled | default(false) %}
+{% if monitoring_alert_ssl_expire_enabled | default(true) %}
       module: [http_2xx, tcp_connect]
 {% else %}
       module: [http_2xx]
