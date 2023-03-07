@@ -153,17 +153,18 @@ groups:
       annotations:
         summary: "{{ $labels.instance }}: Zombie processes > 5000"
         description: "Instance {{ $labels.instance }}: Processes count: {{ $value | humanize }} zombies during last 10 minutes!"
-
+{% endraw %}
+{% if monitoring_alert_ssl_expire_enabled | default(false) %}
     - alert: SSLCertificateExpiry
-        expr: probe_ssl_earliest_cert_expiry{instance=~"$target"} - time() < 86400
+        expr: {% raw %}probe_ssl_earliest_cert_expiry{instance=~"$target"} - time() < 86400{% endraw %}
         for: 0m
         labels:
           severity: critical
         annotations:
-          summary: {{ $labels.instance }}: SSL/TLS certificate will expire 24h
-          description: "The SSL/TLS certificate for {{ $labels.instance }} will expire in {{ humanizeDurationSeconds probe_ssl_cert_expiry_seconds{job=\"blackbox\"} }}. Renew the certificate to avoid service disruptions."
-{% endraw %}
-
+          summary: {% raw %}"{{ $labels.instance }}{% endraw %}: SSL/TLS certificate will expire 24h"
+          description: {% raw %}"{{ $labels.instance }}{% endraw %} The SSL/TLS certificate will expire in 24h. Renew the certificate to avoid service disruptions"
+{% endif %}
+{% if monitoring_pgsql_exporter_enabled | default(true) %}
 {% for db in monitoring_pgsql_dbs %}
     - alert: "Postgresql active connections on DB {{ db['dbname'] }} overhead"
       expr: pg_stat_activity_count{datname="{{ db['dbname'] }}", server="{{ db['host'] }}:{{ db['port'] }}", state="active"} + pg_stat_activity_count{datname="{{ db['dbname'] }}", server="{{ db['host'] }}:{{ db['port'] }}", state="idle"} > 400
@@ -174,4 +175,4 @@ groups:
         summary: {% raw %}"{{ $labels.instance }}{% endraw %}: {{ db['dbname'] }} connections > 400"
         description: {% raw %}"{{ $labels.instance }}{% endraw %}, {{ db['dbname'] }}: Connections: {% raw %}{{ $value | humanize }}{% endraw %} during last 10 minutes!"
 {% endfor %}
-
+{% endif %}
