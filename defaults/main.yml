@@ -63,7 +63,7 @@ monitoring_alerts_repeat_message_interval: "30m"
 monitoring_alerts_group_message_interval: "5m"
 #receive resolved issues messages
 monitoring_alerts_send_resolved: true
-monitoring_alert_ssl_expire_time: 432000   #in seconds
+monitoring_alert_ssl_expire_time: 120   #in hours, 5 days
 monitoring_slack_alerts: false
 monitoring_slack_channel: "monitoring"
 #slack notification configuration vars: slack aplication api url  & access token

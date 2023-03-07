@@ -74,7 +74,7 @@ Role Variables
 |**monitoring_alerts_group_message_interval**|5m|Time interval to send alert message <br> about new alerts that are added <br> to a group for which an initial <br> notification has already been sent|
 |**monitoring_alerts_send_resolved**|true|Notify about resolved alerts|
 |**monitoring_alert_ssl_expire_enabled**|true|enable SSL sertificate expire alerting|
-|**monitoring_alert_ssl_expire_time**|432000|Alerting time in seconds before sertificate will expire|
+|**monitoring_alert_ssl_expire_time**|120|Alerting time in hours before sertificate will expire|
 |**monitoring_slack_alerts**|false| Enable sending monitoring alerts via slack |
 |**monitoring_slack_channel**|monitoring| Name of slack channel for sending alerts |
 |**monitoring_slack_webhook_url**| `" "` | URL for using your Slack|

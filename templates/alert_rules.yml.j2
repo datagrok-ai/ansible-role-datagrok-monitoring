@@ -155,14 +155,24 @@ groups:
         description: "Instance {{ $labels.instance }}: Processes count: {{ $value | humanize }} zombies during last 10 minutes!"
 {% endraw %}
 {% if monitoring_alert_ssl_expire_enabled | default(true) %}
-    - alert: SSLCertificateExpiry
-      expr: {% raw %}probe_ssl_earliest_cert_expiry{instance=~"$target"}{% endraw %} - time() < {{ monitoring_alert_ssl_expire_time }}
+    - alert: SSLCertificateExpiry_5day
+      expr: {% raw %}probe_ssl_earliest_cert_expiry{instance=~"$target"}{% endraw %} - time() < {{ monitoring_alert_ssl_expire_time * 3600 }}
+      for: 0m
+      labels:
+        severity: warning
+      annotations:
+        summary: {% raw %}"{{ $labels.instance }}{% endraw %}: SSL/TLS certificate will expire in less then {{ monitoring_alert_ssl_expire_time }}h"
+        description: {% raw %}"{{ $labels.instance }}{% endraw %} The SSL/TLS certificate will expire in less then {{ monitoring_alert_ssl_expire_time }}h. Renew the certificate to avoid service disruptions"
+{% endif %}
+{% if monitoring_alert_ssl_expire_enabled | default(true) %}
+    - alert: SSLCertificateExpiry_TODAY
+      expr: {% raw %}probe_ssl_earliest_cert_expiry{instance=~"$target"}{% endraw %} - time() < 86400
       for: 0m
       labels:
         severity: critical
       annotations:
-        summary: {% raw %}"{{ $labels.instance }}{% endraw %}: SSL/TLS certificate will expire in {{ monitoring_alert_ssl_expire_time / 3600 }}h"
-        description: {% raw %}"{{ $labels.instance }}{% endraw %} The SSL/TLS certificate will expire in {{ monitoring_alert_ssl_expire_time / 3600 }}h. Renew the certificate to avoid service disruptions"
+        summary: {% raw %}"{{ $labels.instance }}{% endraw %}: SSL/TLS certificate will expire in less then 24h"
+        description: {% raw %}"{{ $labels.instance }}{% endraw %} The SSL/TLS certificate will expire in less then 24h. Renew the certificate to avoid service disruptions"
 {% endif %}
 {% if monitoring_pgsql_exporter_enabled | default(true) %}
 {% for db in monitoring_pgsql_dbs %}
