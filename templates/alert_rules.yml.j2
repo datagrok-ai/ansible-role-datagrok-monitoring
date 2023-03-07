@@ -156,7 +156,7 @@ groups:
 {% endraw %}
 {% if monitoring_alert_ssl_expire_enabled | default(false) %}
     - alert: SSLCertificateExpiry
-        expr: {% raw %}probe_ssl_earliest_cert_expiry{instance=~"$target"} - time() < 86400{% endraw %}
+        expr: {% raw %}probe_ssl_earliest_cert_expiry{instance=~"$target"}{% endraw %} - time() < 86400
         for: 0m
         labels:
           severity: critical
