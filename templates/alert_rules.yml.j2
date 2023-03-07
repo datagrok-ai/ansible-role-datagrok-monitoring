@@ -153,6 +153,15 @@ groups:
       annotations:
         summary: "{{ $labels.instance }}: Zombie processes > 5000"
         description: "Instance {{ $labels.instance }}: Processes count: {{ $value | humanize }} zombies during last 10 minutes!"
+
+    - alert: SSLCertificateExpiry
+        expr: probe_ssl_cert_expiry_seconds{job="blackbox-http"} <= 86400
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: {{ $labels.instance }}: SSL/TLS certificate will expire 24h
+          description: "The SSL/TLS certificate for {{ $labels.instance }} will expire in {{ humanizeDurationSeconds probe_ssl_cert_expiry_seconds{job=\"blackbox\"} }}. Renew the certificate to avoid service disruptions."
 {% endraw %}
 
 {% for db in monitoring_pgsql_dbs %}

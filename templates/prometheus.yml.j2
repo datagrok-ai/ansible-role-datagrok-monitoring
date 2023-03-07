@@ -83,7 +83,7 @@ scrape_configs:
   - job_name: blackbox-http # To get metrics about the exporter’s targets
     metrics_path: /probe
     params:
-      module: [http_2xx]
+      module: [http_2xx, tcp_connect_tls]
     static_configs:
     - targets:
   {% for server in monitoring_blackbox_endpoints %}
