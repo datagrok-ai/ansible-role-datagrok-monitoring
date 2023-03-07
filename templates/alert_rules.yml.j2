@@ -154,7 +154,27 @@ groups:
         summary: "{{ $labels.instance }}: Zombie processes > 5000"
         description: "Instance {{ $labels.instance }}: Processes count: {{ $value | humanize }} zombies during last 10 minutes!"
 {% endraw %}
-
+{% if monitoring_alert_ssl_expire_enabled | default(true) %}
+    - alert: SSLCertificateExpiry_5day
+      expr: {% raw %}probe_ssl_earliest_cert_expiry{instance=~"$target"}{% endraw %} - time() < {{ monitoring_alert_ssl_expire_time * 3600 }}
+      for: 0m
+      labels:
+        severity: warning
+      annotations:
+        summary: {% raw %}"{{ $labels.instance }}{% endraw %}: SSL/TLS certificate will expire in less then {{ monitoring_alert_ssl_expire_time }}h"
+        description: {% raw %}"{{ $labels.instance }}{% endraw %} The SSL/TLS certificate will expire in less then {{ monitoring_alert_ssl_expire_time }}h. Renew the certificate to avoid service disruptions"
+{% endif %}
+{% if monitoring_alert_ssl_expire_enabled | default(true) %}
+    - alert: SSLCertificateExpiry_TODAY
+      expr: {% raw %}probe_ssl_earliest_cert_expiry{instance=~"$target"}{% endraw %} - time() < 86400
+      for: 0m
+      labels:
+        severity: critical
+      annotations:
+        summary: {% raw %}"{{ $labels.instance }}{% endraw %}: SSL/TLS certificate will expire in less then 24h"
+        description: {% raw %}"{{ $labels.instance }}{% endraw %} The SSL/TLS certificate will expire in less then 24h. Renew the certificate to avoid service disruptions"
+{% endif %}
+{% if monitoring_pgsql_exporter_enabled | default(true) %}
 {% for db in monitoring_pgsql_dbs %}
     - alert: "Postgresql active connections on DB {{ db['dbname'] }} overhead"
       expr: pg_stat_activity_count{datname="{{ db['dbname'] }}", server="{{ db['host'] }}:{{ db['port'] }}", state="active"} + pg_stat_activity_count{datname="{{ db['dbname'] }}", server="{{ db['host'] }}:{{ db['port'] }}", state="idle"} > 400
@@ -165,4 +185,4 @@ groups:
         summary: {% raw %}"{{ $labels.instance }}{% endraw %}: {{ db['dbname'] }} connections > 400"
         description: {% raw %}"{{ $labels.instance }}{% endraw %}, {{ db['dbname'] }}: Connections: {% raw %}{{ $value | humanize }}{% endraw %} during last 10 minutes!"
 {% endfor %}
-
+{% endif %}
