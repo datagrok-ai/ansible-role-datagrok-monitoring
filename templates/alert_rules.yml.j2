@@ -161,8 +161,8 @@ groups:
       labels:
         severity: critical
       annotations:
-        summary: {% raw %}"{{ $labels.instance }}{% endraw %}: SSL/TLS certificate will expire in {{ monitoring_alert_ssl_expire_time | float | divided_by(3600) }}h"
-        description: {% raw %}"{{ $labels.instance }}{% endraw %} The SSL/TLS certificate will expire in {{ monitoring_alert_ssl_expire_time | float | divided_by(3600) }}h. Renew the certificate to avoid service disruptions"
+        summary: {% raw %}"{{ $labels.instance }}{% endraw %}: SSL/TLS certificate will expire in {{ monitoring_alert_ssl_expire_time / 3600 }}h"
+        description: {% raw %}"{{ $labels.instance }}{% endraw %} The SSL/TLS certificate will expire in {{ monitoring_alert_ssl_expire_time / 3600 }}h. Renew the certificate to avoid service disruptions"
 {% endif %}
 {% if monitoring_pgsql_exporter_enabled | default(true) %}
 {% for db in monitoring_pgsql_dbs %}
