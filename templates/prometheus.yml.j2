@@ -82,6 +82,7 @@ scrape_configs:
 
   - job_name: blackbox-http # To get metrics about the exporter’s targets
     metrics_path: /probe
+    scheme: https
     params:
       module: [http_2xx, tcp_connect]
     static_configs:
