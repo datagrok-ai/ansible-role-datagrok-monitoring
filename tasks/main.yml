@@ -10,7 +10,7 @@
 - name: include pgsql_monitoring
   ansible.builtin.include_tasks:
     file: postgres.yml
-  when: inventory_hostname == "{{ monitoring_pgsql_db_host }}"
+  when: monitoring_pgsql_exporter_enabled | bool
 
 - name: include server tasks
   ansible.builtin.include_tasks:

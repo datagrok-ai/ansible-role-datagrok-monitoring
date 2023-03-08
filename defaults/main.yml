@@ -88,8 +88,5 @@ monitoring_pgsql_dbs:
     port: 5432
     dbname: 'datagrok'
     sslmode: 'disable'
-
-monitoring_pgsql_parameters:
-  DATA_SOURCE_NAME: "{% for db in monitoring_pgsql_dbs %}postgresql://{{ db['login'] }}:{{ db['password'] }}@{{ db['host'] }}:{{ db['port'] }}/{{ db['dbname'] }}?sslmode={{ db['sslmode'] | default('enable') }}{{ ',' if not loop.last }}{% endfor %}"
-  PG_EXPORTER_WEB_LISTEN_ADDRESS: ":{{ monitoring_pgsql_exporter_port }}"
-  
+    inventory_hostname: 'localhost'
+    name: 'local'

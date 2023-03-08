@@ -1,14 +1,19 @@
 - name: Run postresql_exporter via docker
   docker_container:
-    name: monitoring_postgresql
-    image: "quay.io/prometheuscommunity/postgres-exporter:v0.10.0"
-    env: "{{ monitoring_pgsql_parameters | default ({}) }}"
+    name: "{{ 'monitoring_postgresql_' ~ id }}"
+    image: "quay.io/prometheuscommunity/postgres-exporter:v0.11.1"
+    env:
+      DATA_SOURCE_NAME: "postgresql://{{ item['login'] }}:{{ item['password'] }}@{{ item['host'] }}:{{ item['port'] }}/{{ item['dbname'] }}?sslmode={{ item['sslmode'] | default('enable') }}"
+      PG_EXPORTER_WEB_LISTEN_ADDRESS: ":{{ monitoring_pgsql_exporter_port }}"
     ports:
-      - "{{ monitoring_pgsql_exporter_port }}:{{ monitoring_pgsql_exporter_port }}"
+      - "{{ monitoring_pgsql_exporter_port | int + id }}:{{ monitoring_pgsql_exporter_port }}"
     networks:
       - name: "{{ monitoring_docker_network_name }}"
         aliases:
           - pg_exporter
     restart_policy: always
-  when: monitoring_pgsql_exporter_enabled | bool
+  loop: "{{ monitoring_pgsql_dbs }}"
+  loop_control:
+    index_var: id
+  when: "item['inventory_hostname'] == inventory_hostname"
   tags: ['pg_exporter']

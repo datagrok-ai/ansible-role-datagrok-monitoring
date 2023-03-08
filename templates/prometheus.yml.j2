@@ -105,15 +105,20 @@ scrape_configs:
 {% if monitoring_pgsql_exporter_enabled | default(true) %}
   - job_name: "postgresql"
     static_configs:
-      - targets: [
-        {%- if monitoring_pgsql_db_host == inventory_hostname -%}
-          'monitoring_postgresql:{{ monitoring_pgsql_exporter_port }}'
-        {%- else -%}
-          '{{ hostvars[monitoring_pgsql_db_host]["monitoring_advertise_address"] | default(hostvars[monitoring_pgsql_db_host]["ansible_host"]) }}:{{ monitoring_pgsql_exporter_port }}'
-        {%- endif -%}]  
+      {% for item in monitoring_pgsql_dbs | default([]) %}
+      - targets:
+          {% if item["inventory_hostname"] == inventory_hostname %}
+            - 'monitoring_postgresql:{{ monitoring_pgsql_exporter_port }}'
+          {% else %}
+            - '{{ hostvars[item["inventory_hostname"]]["monitoring_advertise_address"] | default(hostvars[item["inventory_hostname"]]["ansible_host"]) }}:{{ monitoring_pgsql_exporter_port | int + loop.index0 }}'
+          {% endif %}
         labels:
-          hostname: {{ monitoring_pgsql_db_host }}
-{% endif %}
+          hostname: '{{ item["inventory_hostname"] }}'
+          server_name: '{{ item["name"] | default(item["host"] ~ ":" ~ (monitoring_pgsql_exporter_port | int + loop.index0)) }}'
+      {% endfor %}
     relabel_configs:
       - source_labels: [hostname]
         target_label: instance
+      - source_labels: [server_name]
+        target_label: server
+{% endif %}
