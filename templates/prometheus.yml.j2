@@ -114,7 +114,7 @@ scrape_configs:
           {% endif %}
         labels:
           hostname: '{{ item["inventory_hostname"] }}'
-          server_name: '{{ item["name"] | default(item["host"] ~ ":" ~ (monitoring_pgsql_exporter_port | int + loop.index0)) }}'
+          server_name: '{{ item["name"] | default(item["host"] ~ ":" ~ item["port"]) }}'
       {% endfor %}
     relabel_configs:
       - source_labels: [hostname]
