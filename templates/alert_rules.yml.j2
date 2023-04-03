@@ -156,7 +156,7 @@ groups:
 {% endraw %}
 {% if monitoring_alert_ssl_expire_enabled | default(true) %}
     - alert: SSLCertificateExpiry_5day
-      expr: {% raw %}probe_ssl_earliest_cert_expiry{instance=~"$target"}{% endraw %} - time() < {{ monitoring_alert_ssl_expire_time * 3600 }}
+      expr: probe_ssl_earliest_cert_expiry - time() < {{ monitoring_alert_ssl_expire_time * 3600 }}
       for: 0m
       labels:
         severity: warning
@@ -166,7 +166,7 @@ groups:
 {% endif %}
 {% if monitoring_alert_ssl_expire_enabled | default(true) %}
     - alert: SSLCertificateExpiry_TODAY
-      expr: {% raw %}probe_ssl_earliest_cert_expiry{instance=~"$target"}{% endraw %} - time() < 86400
+      expr: probe_ssl_earliest_cert_expiry - time() < 86400
       for: 0m
       labels:
         severity: critical
