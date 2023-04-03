@@ -21,7 +21,7 @@ global:
 
 route:
   receiver: 'DevOps'
-  group_by: [alertname, InstanceState, name]
+  group_by: [InstanceState, name]
   group_interval: {{ monitoring_alerts_group_message_interval }}
   repeat_interval: {{ monitoring_alerts_repeat_message_interval }}
 {% if monitoring_except_rules | default([]) | length > 0 %}
