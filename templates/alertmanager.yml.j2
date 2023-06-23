@@ -24,8 +24,8 @@ route:
   group_by: ['...']
   group_interval: {{ monitoring_alerts_group_message_interval }}
   repeat_interval: {{ monitoring_alerts_repeat_message_interval }}
-{% if monitoring_except_rules | default([]) | length > 0 %}
   routes: 
+{% if monitoring_except_rules | default([]) | length > 0 %}
   {% for rule in monitoring_except_rules %}
   - receiver: "{{ rule.receiver | default('null') }}"
     matchers:
@@ -34,9 +34,21 @@ route:
     {% endfor %}
 {% endfor %}
 {% endif %}
+  - receiver:
+    - 'DevOps' 
+    - 'JenkinsSaveDemoDb'
+    matchers:
+        - job="demo-db-connection-check"
 
 receivers:
 - name: 'null'
+- name: 'JenkinsSaveDemoDb'
+  webhook_configs:
+    - url: "{{ jenkins_webhook_url }}"
+      send_resolved: false
+      http_config:
+        authorization:
+          credentials: {{ jenkins_webhook_url_token }}
 - name: 'DevOps'
 {% if monitoring_slack_alerts | default(false) %}
   slack_configs:

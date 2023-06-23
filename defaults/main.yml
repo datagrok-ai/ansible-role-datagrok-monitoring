@@ -92,3 +92,7 @@ monitoring_pgsql_dbs:
     sslmode: 'disable'
     inventory_hostname: 'localhost'
     name: 'local'
+#============ webhooks =====================
+jenkins_webhook_url: ''
+jenkins_webhook_url_token: '' 
+
