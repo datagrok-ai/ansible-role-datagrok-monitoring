@@ -17,6 +17,7 @@ monitoring_alertmanager_domain: "http://{{ monitoring_domain }}:{{ monitoring_al
 #========= set enpoints for monitor and alert services health checks ========
 monitoring_cvm_endpoint: "http://127.0.0.1:8090"
 monitoring_datagrok_endpoint: "http://127.0.0.1:8080"
+monitoring_demo_db_endpoints: ""
 monitoring_blackbox_endpoints:
   # gcompute
   - "{{ monitoring_cvm_endpoint }}/grok_compute/info"
@@ -41,6 +42,7 @@ monitoring_blackbox_enabled: true
 monitoring_cadvisor_enabled: true
 monitoring_pgsql_exporter_enabled: true
 monitoring_alert_ssl_expire_enabled: true
+monitoring_alert_demo_db_connection_enabled: true
 
 #========= monitoring components docker images ======
 monitoring_prometheus_image: "prom/prometheus:v2.40.4"
