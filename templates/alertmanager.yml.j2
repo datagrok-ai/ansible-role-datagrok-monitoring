@@ -35,9 +35,11 @@ route:
 {% endfor %}
 {% endif %}
 {% if monitoring_alert_demo_db_connection_enabled | default(true) %}
-  - receiver:
-    - 'DevOps' 
-    - 'JenkinsSaveDemoDb'
+  - receiver: 'DevOps' 
+    matchers:
+        - job="demo-db-connection-check"
+    continue: true
+  - receiver: 'JenkinsSaveDemoDb'
     matchers:
         - job="demo-db-connection-check"
 {% endif %}
