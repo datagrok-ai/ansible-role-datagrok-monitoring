@@ -49,11 +49,8 @@ receivers:
 {% if monitoring_alert_demo_db_connection_enabled | default(true) %}
 - name: 'JenkinsSaveDemoDb'
   webhook_configs:
-    - url: "{{ jenkins_webhook_url }}"
+    - url: "{{ jenkins_webhook_url }}?token={ jenkins_webhook_url_token }}"
       send_resolved: false
-      http_config:
-        authorization:
-          credentials: {{ jenkins_webhook_url_token }}
 {% endif %}
 - name: 'DevOps'
 {% if monitoring_slack_alerts | default(false) %}
