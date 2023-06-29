@@ -49,7 +49,7 @@ receivers:
 {% if monitoring_alert_demo_db_connection_enabled | default(true) %}
 - name: 'JenkinsSaveDemoDb'
   webhook_configs:
-    - url: "{{ jenkins_webhook_url }}?token={ jenkins_webhook_url_token }}"
+    - url: "{{ jenkins_webhook_url }}?token={{ jenkins_webhook_url_token }}"
       send_resolved: false
 {% endif %}
 - name: 'DevOps'
