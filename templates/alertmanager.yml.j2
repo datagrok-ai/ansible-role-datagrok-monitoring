@@ -39,7 +39,7 @@ route:
     matchers:
         - job="demo-db-connection-check"
     continue: true
-  - receiver: 'JenkinsSaveDemoDb'
+  - receiver: 'ServiceRestart'
     matchers:
         - job="demo-db-connection-check"
 {% endif %}
@@ -47,9 +47,9 @@ route:
 receivers:
 - name: 'null'
 {% if monitoring_alert_demo_db_connection_enabled | default(true) %}
-- name: 'JenkinsSaveDemoDb'
+- name: 'ServiceRestart'
   webhook_configs:
-    - url: "{{ jenkins_webhook_url }}?token={{ jenkins_webhook_url_token }}"
+    - url: "{{ service_restart_webhook_url }}"
       send_resolved: false
 {% endif %}
 - name: 'DevOps'

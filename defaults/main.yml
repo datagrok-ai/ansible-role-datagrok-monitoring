@@ -93,6 +93,4 @@ monitoring_pgsql_dbs:
     inventory_hostname: 'localhost'
     name: 'local'
 #============ webhooks =====================
-jenkins_webhook_url: ''
-jenkins_webhook_url_token: '' 
-
+service_restart_webhook_url: ''

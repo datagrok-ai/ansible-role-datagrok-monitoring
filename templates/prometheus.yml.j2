@@ -106,7 +106,7 @@ scrape_configs:
   - job_name: demo-db-connection-check 
     metrics_path: /probe
     params:
-      module: [demo_db_tcp_connect]
+      module: [tcp_connect_no_tls]
     static_configs:
     - targets:
   {% for server in monitoring_demo_db_endpoints %}

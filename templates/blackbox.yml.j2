@@ -17,7 +17,7 @@ modules:
       tls: true
 {% endif %}
 {% if monitoring_alert_demo_db_connection_enabled | default(true) %}
-  demo_db_tcp_connect:
+  tcp_connect_no_tls:
     prober: tcp
     timeout: 60s
     tcp:
