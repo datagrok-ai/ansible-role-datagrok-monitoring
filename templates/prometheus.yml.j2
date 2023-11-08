@@ -108,7 +108,7 @@ scrape_configs:
       {% for item in monitoring_pgsql_dbs | default([]) %}
       - targets:
           {% if item["inventory_hostname"] == inventory_hostname %}
-            - 'monitoring_postgresql:{{ monitoring_pgsql_exporter_port }}'
+            - '{{ "monitoring_postgresql_" ~ loop.index0 }}:{{ monitoring_pgsql_exporter_port }}'
           {% else %}
             - '{{ hostvars[item["inventory_hostname"]]["monitoring_advertise_address"] | default(hostvars[item["inventory_hostname"]]["ansible_host"]) }}:{{ monitoring_pgsql_exporter_port | int + loop.index0 }}'
           {% endif %}

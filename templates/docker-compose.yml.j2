@@ -8,7 +8,7 @@ services:
     hostname: "{{ monitoring_domain }}"
     restart: always
     ports:
-      - {{ monitoring_prometheus_port }}:9090
+      - {{ monitoring_prometheus_port }}:{{ monitoring_prometheus_port }}
     volumes:
       - {{ monitoring_config_dir }}/prometheus.yml:/etc/prometheus/prometheus.yml
       - {{ monitoring_config_dir }}/alert_rules.yml:/etc/prometheus/alert_rules.yml
@@ -43,7 +43,7 @@ services:
   alertmanager:
     image: "{{ monitoring_alertmanager_image }}"
     ports:
-      - {{ monitoring_alertmanager_port }}:9093
+      - {{ monitoring_alertmanager_port }}:{{ monitoring_alertmanager_port }}
     volumes:
       - {{ monitoring_config_dir }}/alertmanager.yml:/etc/alertmanager/alertmanager.yml
       - alertmanager_data:/alertmanager/data/
@@ -62,7 +62,7 @@ services:
   blackbox:
     image: "{{ monitoring_blackbox_image }}"
     ports:
-      - {{ monitoring_blackbox_port }}:9115
+      - {{ monitoring_blackbox_port }}:{{ monitoring_blackbox_port }}
     volumes:
       - {{ monitoring_config_dir }}/blackbox.yml:/etc/blackbox_exporter/config.yml
     networks:
