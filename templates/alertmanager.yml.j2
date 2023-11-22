@@ -24,8 +24,8 @@ route:
   group_by: ['...']
   group_interval: {{ monitoring_alerts_group_message_interval }}
   repeat_interval: {{ monitoring_alerts_repeat_message_interval }}
-{% if monitoring_except_rules | default([]) | length > 0 %}
   routes: 
+{% if monitoring_except_rules | default([]) | length > 0 %}
   {% for rule in monitoring_except_rules %}
   - receiver: "{{ rule.receiver | default('null') }}"
     matchers:
@@ -34,9 +34,24 @@ route:
     {% endfor %}
 {% endfor %}
 {% endif %}
+{% if monitoring_alert_demo_db_connection_enabled | default(true) %}
+  - receiver: 'DevOps' 
+    matchers:
+        - job="demo-db-connection-check"
+    continue: true
+  - receiver: 'ServiceRestart'
+    matchers:
+        - job="demo-db-connection-check"
+{% endif %}
 
 receivers:
 - name: 'null'
+{% if monitoring_alert_demo_db_connection_enabled | default(true) %}
+- name: 'ServiceRestart'
+  webhook_configs:
+    - url: "{{ service_restart_webhook_url }}"
+      send_resolved: false
+{% endif %}
 - name: 'DevOps'
 {% if monitoring_slack_alerts | default(false) %}
   slack_configs:

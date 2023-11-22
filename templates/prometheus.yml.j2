@@ -102,6 +102,26 @@ scrape_configs:
         replacement: blackbox:{{ monitoring_blackbox_port }}
 {% endif %}
 
+{% if monitoring_alert_demo_db_connection_enabled | default(true) %}
+  - job_name: demo-db-connection-check 
+    metrics_path: /probe
+    params:
+      module: [tcp_connect_no_tls]
+    static_configs:
+    - targets:
+  {% for server in monitoring_demo_db_endpoints %}
+      - {{ server }}
+  {% endfor %}
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:{{ monitoring_blackbox_port }}
+{% endif %}
+
+
 {% if monitoring_pgsql_exporter_enabled | default(true) %}
   - job_name: "postgresql"
     static_configs:
