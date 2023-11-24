@@ -24,15 +24,22 @@ route:
   group_by: ['...']
   group_interval: {{ monitoring_alerts_group_message_interval }}
   repeat_interval: {{ monitoring_alerts_repeat_message_interval }}
-{% if monitoring_except_rules | default([]) | length > 0 %}
-  routes: 
+{% if monitoring_except_rules | default([]) | length > 0 or monitoring_swarm_services_enabled | default(true) %}
+  routes:
+  {% if monitoring_except_rules | default([]) | length > 0 %}
   {% for rule in monitoring_except_rules %}
   - receiver: "{{ rule.receiver | default('null') }}"
     matchers:
     {% for matcher in  rule.matchers %}
         - {{ matcher }}
     {% endfor %}
-{% endfor %}
+  {% endfor %}
+  {% endif %}
+  {% if monitoring_swarm_services_enabled %}
+  - receiver: 'swarm'
+    matchers:
+        - job: "swarm_services"
+  {% endif %}
 {% endif %}
 
 receivers:
@@ -74,4 +81,44 @@ receivers:
     headers:
       subject: {% raw %}'[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ else }}:{{ .Alerts.Resolved | len }}{{ end }}] {{ .CommonAnnotations.summary }} '{% endraw %}
   {% endfor %}
+{% endif %}
+{% if monitoring_swarm_services_enabled %}
+- name: 'swarm'
+{% if monitoring_slack_alerts | default(false) %}
+  slack_configs:
+  - channel: '#{{ monitoring_slack_channel }}'
+    send_resolved: {{ monitoring_alerts_send_resolved }}
+    icon_url: https://avatars3.githubusercontent.com/u/3380462
+    {% raw %}
+    title: |-
+        [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }} for {{ .CommonLabels.job }} on {{ .CommonLabels.instance }} 
+        {{- if gt (len .CommonLabels) (len .GroupLabels) -}}
+          {{" "}}(
+          {{- with .CommonLabels.Remove .GroupLabels.Names }}
+            {{- range $index, $label := .SortedPairs -}}
+              {{ if $index }}, {{ end }}
+              {{- $label.Name }}="{{ $label.Value -}}"
+            {{- end }}
+          {{- end -}}
+          )
+        {{- end }}
+      text: >-
+        {{ range .Alerts -}}
+        *Alert:* {{ .Annotations.title }}{{ if .Labels.severity }} - `{{ .Labels.severity }}`{{ end }}
+        *Description:* {{ .Annotations.description }}
+        *Details:*
+          {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
+          {{ end }}
+        {{ end }}
+    {% endraw %}
+{% endif %}
+{% if monitoring_email_alerts | default(true) %}
+  email_configs:
+  {% for receiver in monitoring_note_receiver %}
+  - to: "{{ receiver }}"
+    send_resolved: "false"
+    headers:
+      subject: {% raw %}'[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ else }}:{{ .Alerts.Resolved | len }}{{ end }}] {{ .CommonAnnotations.summary }} '{% endraw %}
+  {% endfor %}
+{% endif %}
 {% endif %}
