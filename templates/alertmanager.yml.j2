@@ -20,9 +20,7 @@ global:
 {% endif %}
 
 route:
-{% if not monitoring_swarm_services_enabled %}
   receiver: 'DevOps'
-{% endif %}
   group_by: ['...']
   group_interval: {{ monitoring_alerts_group_message_interval }}
   repeat_interval: {{ monitoring_alerts_repeat_message_interval }}
@@ -41,9 +39,6 @@ route:
   - receiver: 'swarm'
     matchers:
         {% raw %}- job="swarm_services"{% endraw %}
-  - receiver: 'DevOps'
-    matchers:
-        {% raw %}- job!="swarm_services"{% endraw %}
   {% endif %}
 {% endif %}
 
