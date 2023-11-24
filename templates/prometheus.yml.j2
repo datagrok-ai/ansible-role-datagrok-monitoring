@@ -69,7 +69,8 @@ scrape_configs:
     relabel_configs:
       - source_labels: [hostname]
         target_label: instance
-  
+
+ {% if monitoring_swarm_services_enabled %}
   - job_name: "swarm_services"
     # job is needed for matching the receiver with the 'send_resolved: false' config to not get a false positive 'resolved' swarm services alert
     # metrics_path defaults to '/metrics'
@@ -88,6 +89,7 @@ scrape_configs:
     relabel_configs:
       - source_labels: [hostname]
         target_label: instance
+ {% endif %}
 {% endif %}
 
 {% if monitoring_blackbox_enabled | default(true) %}
