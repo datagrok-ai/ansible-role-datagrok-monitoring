@@ -94,8 +94,8 @@ groups:
 {% if monitoring_swarm_services_enabled %}
     - alert: "Docker swarm service  is down"
 {% raw %}
-      expr: (sum(rate(container_last_seen{container_label_com_docker_swarm_node_id=~".+.", job="swarm_services"}[10m])) by (container_label_com_docker_swarm_service_name)*100) < 50 
-      for: 6m
+      expr: (sum(rate(container_last_seen{container_label_com_docker_swarm_node_id=~".+.", job="swarm_services"}[10m])) by (container_label_com_docker_swarm_service_name)*100) < 80
+      for: 5m
       labels:
         severity: critical
       annotations:
