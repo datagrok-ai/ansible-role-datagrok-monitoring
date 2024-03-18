@@ -37,7 +37,7 @@ route:
   {% endfor %}
   {% endif %}
   {% if monitoring_swarm_services_enabled %}{{ receivers.append({'name': 'Swarm', 'send_resolved': false}) }}
-  - receiver: 'swarm'
+  - receiver: 'Swarm'
     matchers:
       - job="swarm_services"
   {% endif %}
