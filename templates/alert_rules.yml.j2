@@ -90,16 +90,21 @@ groups:
  
 #container alerts
 # This rule can be very noisy in dynamic infra with legitimate container start/stop/deployment.
-    - alert: "Container  is down"
-      expr: time() - container_last_seen > 60
+{% endraw %}
+{% if monitoring_swarm_services_enabled %}
+    - alert: "Docker swarm service is down"
+{% raw %}
+      expr: (sum(rate(container_last_seen{container_label_com_docker_swarm_node_id=~".+.", container_label_caller!="grok_spawner"}[10m])) by (container_label_com_docker_swarm_service_name)*100) < 80
       for: 5m
       labels:
         severity: critical
+        job: swarm_services
       annotations:
-        summary: "{{ $labels.instance }}: {{ $labels.name }} container is down"
-        description: "A container is down for 5 min\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
-    
-      
+        summary: "S-O-S {{ $labels.container_label_com_docker_swarm_service_name }} service is down"
+        description: "A service is down for 5 min\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+{% endraw %}
+{% endif %}
+{% raw %}
     - alert: "ContainerCpuUsage is above 90%"
       expr: (sum(rate(container_cpu_usage_seconds_total{name!=""}[3m])) BY (instance, name, job) * 100) > 90
       for: 10m

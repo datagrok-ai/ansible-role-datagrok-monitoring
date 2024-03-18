@@ -19,29 +19,39 @@ global:
   {% endif %}
 {% endif %}
 
+{% set receivers = [{'name': 'DevOps'}] %}
 route:
   receiver: 'DevOps'
   group_by: ['...']
   group_interval: {{ monitoring_alerts_group_message_interval }}
   repeat_interval: {{ monitoring_alerts_repeat_message_interval }}
-{% if monitoring_except_rules | default([]) | length > 0 %}
-  routes: 
+{% if monitoring_except_rules | default([]) | length > 0 or monitoring_swarm_services_enabled | default(true) %}
+  routes:
+  {% if monitoring_except_rules | default([]) | length > 0 %}
   {% for rule in monitoring_except_rules %}
   - receiver: "{{ rule.receiver | default('null') }}"
     matchers:
     {% for matcher in  rule.matchers %}
         - {{ matcher }}
     {% endfor %}
-{% endfor %}
+  {% endfor %}
+  {% endif %}
+  {% if monitoring_swarm_services_enabled %}{{ receivers.append({'name': 'Swarm', 'send_resolved': false}) }}
+  - receiver: 'swarm'
+    matchers:
+      - job="swarm_services"
+  {% endif %}
 {% endif %}
 
 receivers:
 - name: 'null'
-- name: 'DevOps'
-{% if monitoring_slack_alerts | default(false) %}
+{% for receiver in receivers %}
+
+- name: "{{ receiver.name }}"
+  {% if monitoring_slack_alerts | default(false) %}
   slack_configs:
   - channel: '#{{ monitoring_slack_channel }}'
-    send_resolved: {{ monitoring_alerts_send_resolved }}
+    send_resolved: {{ receiver.send_resolved | default(monitoring_alerts_send_resolved) }}
     icon_url: https://avatars3.githubusercontent.com/u/3380462
     {% raw %}
     title: |-
@@ -65,13 +75,14 @@ receivers:
           {{ end }}
         {{ end }}
     {% endraw %}
-{% endif %}
-{% if monitoring_email_alerts | default(true) %}
+  {% endif %}
+  {% if monitoring_email_alerts | default(true) %}
   email_configs:
-  {% for receiver in monitoring_note_receiver %}
-  - to: "{{ receiver }}"
-    send_resolved: {{ monitoring_alerts_send_resolved }}
-    headers:
-      subject: {% raw %}'[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ else }}:{{ .Alerts.Resolved | len }}{{ end }}] {{ .CommonAnnotations.summary }} '{% endraw %}
-  {% endfor %}
-{% endif %}
+    {% for receiver_to in monitoring_note_receiver %}
+    - to: "{{ receiver_to }}"
+      send_resolved: {{ receiver.send_resolved | default(monitoring_alerts_send_resolved) }}
+      headers:
+        subject: {% raw %}'[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ else }}:{{ .Alerts.Resolved | len }}{{ end }}] {{ .CommonAnnotations.summary }} '{% endraw %}
+    {% endfor %}
+  {% endif %}
+{% endfor %}
