@@ -60,7 +60,7 @@ services:
       - {{ monitoring_alertmanager_port }}:{{ monitoring_alertmanager_port }}
     volumes:
       - {{ monitoring_config_dir }}/alertmanager.yml:/etc/alertmanager/alertmanager.yml
-      - alertmanager_data:/alertmanager/data/
+      - alertmanager_data:/alertmanager
     networks:
       {{ monitoring_docker_network_name }}:
         aliases:
