@@ -45,9 +45,10 @@ route:
 
 receivers:
 - name: 'null'
-  {% for receiver in receivers %}
+{% for receiver in receivers %}
+
 - name: "{{ receiver.name }}"
-{% if monitoring_slack_alerts | default(false) %}
+  {% if monitoring_slack_alerts | default(false) %}
   slack_configs:
   - channel: '#{{ monitoring_slack_channel }}'
     send_resolved: {{ receiver.send_resolved | default(monitoring_alerts_send_resolved) }}
@@ -74,14 +75,14 @@ receivers:
           {{ end }}
         {{ end }}
     {% endraw %}
-{% endif %}
-{% if monitoring_email_alerts | default(true) %}
+  {% endif %}
+  {% if monitoring_email_alerts | default(true) %}
   email_configs:
-  {% for to in monitoring_note_receiver %}
-  - to: "{{ to }}"
-    send_resolved: {{ receiver.send_resolved | default(monitoring_alerts_send_resolved) }}
-    headers:
-      subject: {% raw %}'[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ else }}:{{ .Alerts.Resolved | len }}{{ end }}] {{ .CommonAnnotations.summary }} '{% endraw %}
-  {% endfor %}
-{% endif %}
+    {% for receiver_to in monitoring_note_receiver %}
+    - to: "{{ receiver_to }}"
+      send_resolved: {{ receiver.send_resolved | default(monitoring_alerts_send_resolved) }}
+      headers:
+        subject: {% raw %}'[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ else }}:{{ .Alerts.Resolved | len }}{{ end }}] {{ .CommonAnnotations.summary }} '{% endraw %}
+    {% endfor %}
+  {% endif %}
 {% endfor %}
