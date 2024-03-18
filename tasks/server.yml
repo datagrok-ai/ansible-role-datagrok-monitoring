@@ -13,7 +13,7 @@
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
     mode: "0644" 
-  with_items:
+  loop:
      -  { src: "prometheus.yml.j2" , dest: "{{ monitoring_config_dir }}/prometheus.yml" }
      -  { src: "alert_rules.yml.j2" , dest: "{{ monitoring_config_dir }}/alert_rules.yml" }
   notify: 
@@ -24,7 +24,7 @@
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
     mode: "0644"
-  with_items:
+  loop:
      -  { src: "alertmanager.yml.j2" , dest: "{{ monitoring_config_dir }}/alertmanager.yml" }
   notify: 
      - restart_alertmanager
@@ -34,7 +34,7 @@
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
     mode: "0644" 
-  with_items:
+  loop:
      -  { src: "blackbox.yml.j2" , dest: "{{ monitoring_config_dir }}/blackbox.yml" }
   notify: 
      - restart_blackbox
@@ -44,7 +44,7 @@
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
     mode: "0644" 
-  with_items:
+  loop:
      -  { src: "docker-compose.yml.j2" , dest: "{{ monitoring_config_dir }}/docker-compose.yml" }
 
 - name: Create a network
