@@ -92,9 +92,9 @@ groups:
 # This rule can be very noisy in dynamic infra with legitimate container start/stop/deployment.
 {% endraw %}
 {% if monitoring_swarm_services_enabled %}
-    - alert: "Docker swarm service  is down"
+    - alert: "Docker swarm service is down"
 {% raw %}
-      expr: (sum(rate(container_last_seen{container_label_com_docker_swarm_node_id=~".+."}[10m])) by (container_label_com_docker_swarm_service_name)*100) < 80
+      expr: (sum(rate(container_last_seen{container_label_com_docker_swarm_node_id=~".+.", container_label_caller!="grok_spawner"}[10m])) by (container_label_com_docker_swarm_service_name)*100) < 80
       for: 5m
       labels:
         severity: critical
