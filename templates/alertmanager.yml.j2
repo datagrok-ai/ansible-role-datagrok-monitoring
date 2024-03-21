@@ -59,7 +59,6 @@ receivers:
         type: 'Bearer'
         credentials: "{{ monitoring_slack_token }}"
     {% raw %}
-    
     title: >-
         [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }} for {{ .CommonLabels.job }}{{ if gt .CommonLabels.instance "None" }} on {{ .CommonLabels.instance }}{{ else }} for {{ .CommonLabels.container_label_com_docker_swarm_service_name }}{{ end }}
         {{- if gt (len .CommonLabels) (len .GroupLabels) -}}
