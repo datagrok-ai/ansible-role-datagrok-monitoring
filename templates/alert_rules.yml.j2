@@ -24,7 +24,7 @@ groups:
       expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 15
       for: 5m
       labels:
-        severity: critical
+        severity: warning
       annotations:
         summary: "{{ $labels.instance }}: MemoryLoad > 85%"
         description: "Node memory is filling up (< 15% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
@@ -97,7 +97,7 @@ groups:
       expr: (sum(rate(container_last_seen{container_label_com_docker_swarm_node_id=~".+.", container_label_caller!="grok_spawner"}[10m])) by (container_label_com_docker_swarm_service_name)*100) < 80
       for: 5m
       labels:
-        severity: critical
+        severity: warning
         job: swarm_services
       annotations:
         summary: "S-O-S {{ $labels.container_label_com_docker_swarm_service_name }} service is down"
@@ -154,7 +154,7 @@ groups:
       expr: node_processes_state{state="Z"} > 5000 OR node_processes_threads_state{thread_state="Z"} > 5000
       for: 10m
       labels:
-        severity: critical
+        severity: warning
       annotations:
         summary: "{{ $labels.instance }}: Zombie processes > 5000"
         description: "Instance {{ $labels.instance }}: Processes count: {{ $value | humanize }} zombies during last 10 minutes!"
