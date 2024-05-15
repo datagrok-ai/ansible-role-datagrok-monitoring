@@ -50,7 +50,8 @@ receivers:
 - name: "{{ receiver.name }}"
   {% if monitoring_slack_alerts | default(false) %}
   slack_configs:
-  - channel: '#{{ monitoring_slack_channel }}'
+  - channel: {% raw %}'{{ if eq .Alerts.Labels.severity "critical" }}#{{ monitoring_critical_slack_channel }}{{ else }}#{{ monitoring_slack_channel }}{{ end }}'{% endraw %}
+
     send_resolved: {{ receiver.send_resolved | default(monitoring_alerts_send_resolved) }}
     icon_url: https://avatars3.githubusercontent.com/u/3380462
     username: Monitoring
