@@ -2,10 +2,6 @@
 ---
 global:
   resolve_timeout: 15m
-{% if monitoring_slack_alerts | default(false) %}
-  slack_api_url: "{{ monitoring_slack_webhook_url }}"
-{% endif %}
-
 {% if monitoring_email_alerts | default(true) %}
   smtp_require_tls: {{ monitoring_smtp_require_tls }}
   smtp_smarthost: "{{ monitoring_smtp_host }}:{{ monitoring_smtp_port }}"
@@ -19,7 +15,7 @@ global:
   {% endif %}
 {% endif %}
 
-{% set receivers = [{'name': 'DevOps'}] %}
+{% set receivers = [{'name': 'DevOps'}, {'name': 'Critical'}] %}
 route:
   receiver: 'DevOps'
   group_by: ['...']
@@ -30,6 +26,7 @@ route:
   {% if monitoring_except_rules | default([]) | length > 0 %}
   {% for rule in monitoring_except_rules %}
   - receiver: "{{ rule.receiver | default('null') }}"
+    continue: true
     matchers:
     {% for matcher in  rule.matchers %}
         - {{ matcher }}
@@ -40,18 +37,25 @@ route:
   - receiver: 'Swarm'
     matchers:
       - job="swarm_services"
+      - severity="warning"
   {% endif %}
-{% endif %}
 
+
+{% endif %}
+{% if monitoring_slack_alerts | default(false) %}
 receivers:
 - name: 'null'
 {% for receiver in receivers %}
-
 - name: "{{ receiver.name }}"
   {% if monitoring_slack_alerts | default(false) %}
   slack_configs:
-  - channel: {% raw %}{{- if eq .Alerts.Labels.severity "critical" }}{% endraw %}'#{{ monitoring_critical_slack_channel }}'{% raw %}{{ else }}{% endraw %}'#{{ monitoring_slack_channel }}'{% raw %}{{ end }}{% endraw %}
-
+  {% if receiver.name == "Critical" %}
+  - channel: "#{{ monitoring_critical_slack_channel }}"
+    api_url: "{{ monitoring_critical_slack_webhook_url }}"
+  {% else %}
+  - channel: "#{{ monitoring_slack_channel }}"
+    api_url: "{{ monitoring_slack_webhook_url }}"
+  {% endif %}
     send_resolved: {{ receiver.send_resolved | default(monitoring_alerts_send_resolved) }}
     icon_url: https://avatars3.githubusercontent.com/u/3380462
     username: Monitoring
@@ -92,3 +96,4 @@ receivers:
     {% endfor %}
   {% endif %}
 {% endfor %}
+{% endif %}
